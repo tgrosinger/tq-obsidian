@@ -3675,9 +3675,9 @@ obsidian-daily-notes-interface@0.8.4:
     obsidian obsidianmd/obsidian-api#master
     tslib "2.1.0"
 
-"obsidian@https://github.com/obsidianmd/obsidian-api/archive/eb459522e7e35983e3e6c2358301a21b26de7b64.tar.gz":
-  version "0.12.0"
-  resolved "https://github.com/obsidianmd/obsidian-api/archive/eb459522e7e35983e3e6c2358301a21b26de7b64.tar.gz#4a590546378deb2d5ab58b31f44f091b2c430365"
+"obsidian@https://github.com/obsidianmd/obsidian-api/archive/48bd2b91f66aa7d3768629be48c52e5351ec6696.tar.gz":
+  version "0.12.2"
+  resolved "https://github.com/obsidianmd/obsidian-api/archive/48bd2b91f66aa7d3768629be48c52e5351ec6696.tar.gz#9e62de99bfe711dbd57b649ee6b790918e1061df"
   dependencies:
     "@types/codemirror" "0.0.108"
     moment "2.29.1"

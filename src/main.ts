@@ -3,10 +3,12 @@ import { convertLegacyTask } from './legacy-parser';
 import { FileInterface } from './file-interface';
 import { ISettings, settingsWithDefaults } from './settings';
 import CreateTaskUI from './ui/CreateTaskUI.svelte';
+import { TaskView, TQTaskViewType } from './task-view';
 
 export default class TQPlugin extends Plugin {
   public settings: ISettings;
   public fileInterface: FileInterface;
+  public view: TaskView;
 
   public async onload(): Promise<void> {
     console.log('tq: Loading plugin v' + this.manifest.version);
@@ -14,6 +16,11 @@ export default class TQPlugin extends Plugin {
     await this.loadSettings();
 
     this.fileInterface = new FileInterface(this, this.app);
+
+    this.registerView(
+      TQTaskViewType,
+      (leaf) => (this.view = new TaskView(leaf, this)),
+    );
 
     // TODO: If triggered from a daily note, use that as the due date default
     this.addCommand({
@@ -40,6 +47,13 @@ export default class TQPlugin extends Plugin {
         }
       }),
     );
+
+    this.registerObsidianProtocolHandler('tq', (params) => {
+      this.app.workspace.activeLeaf.setViewState({
+        type: TQTaskViewType,
+        state: { file: params.file },
+      });
+    });
   }
 
   private async loadSettings(): Promise<void> {
