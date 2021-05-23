@@ -14,6 +14,8 @@
     store(description, due, repeats ? repeatConfig : '');
     close();
   };
+
+  // TODO: Allow setting arbitrary fields in this form, configured in settings
 </script>
 
 <div>
