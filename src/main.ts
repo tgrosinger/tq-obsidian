@@ -1,9 +1,12 @@
-import { App, Modal, Plugin } from 'obsidian';
+import { App, MarkdownPostProcessorContext, Modal, Plugin } from 'obsidian';
 import { convertLegacyTask } from './legacy-parser';
 import { FileInterface } from './file-interface';
 import { ISettings, settingsWithDefaults } from './settings';
 import CreateTaskUI from './ui/CreateTaskUI.svelte';
 import { TaskView, TQTaskViewType } from './task-view';
+
+// TODO: Switch to Preact
+// https://github.com/liamcain/obsidian-preact-template
 
 export default class TQPlugin extends Plugin {
   public settings: ISettings;
@@ -48,17 +51,46 @@ export default class TQPlugin extends Plugin {
       }),
     );
 
+    this.registerMarkdownPostProcessor(this.markdownPostProcessor);
+
+    /*
     this.registerObsidianProtocolHandler('tq', (params) => {
       this.app.workspace.activeLeaf.setViewState({
         type: TQTaskViewType,
         state: { file: params.file },
       });
     });
+    */
   }
 
   private async loadSettings(): Promise<void> {
     this.settings = settingsWithDefaults(await this.loadData());
   }
+
+  private markdownPostProcessor = (
+    el: HTMLElement,
+    ctx: MarkdownPostProcessorContext,
+  ): void => {
+    if (!ctx.sourcePath.startsWith(this.settings.TasksDir)) {
+      return;
+    }
+
+    const info = ctx.getSectionInfo(el);
+    if (!info) {
+      return;
+    }
+
+    if (info.lineStart === 0) {
+      this.renderTaskControls(el, ctx);
+    }
+  };
+
+  private renderTaskControls = (
+    el: HTMLElement,
+    ctx: MarkdownPostProcessorContext,
+  ): void => {
+    el.createEl('p').setText('Hello?');
+  };
 }
 
 class CreateTaskModal extends Modal {

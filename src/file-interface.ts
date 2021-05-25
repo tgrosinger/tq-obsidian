@@ -1,4 +1,4 @@
-import type { App, TAbstractFile, TFile, Vault } from 'obsidian';
+import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
 import { Frontmatter, setCompleted, setDueDate } from './frontmatter';
 import type TQPlugin from './main';
 
@@ -50,6 +50,8 @@ export class FileInterface {
       setDueDate(frontmatter);
 
       frontmatter.overwrite();
+
+      new Notice('New task repetition created');
       return true;
     });
   };
