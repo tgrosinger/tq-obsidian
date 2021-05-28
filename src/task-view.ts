@@ -1,5 +1,5 @@
-import { ItemView, ViewStateResult, WorkspaceLeaf } from 'obsidian';
 import type TQPlugin from './main';
+import { ItemView, ViewStateResult, WorkspaceLeaf } from 'obsidian';
 
 export const TQTaskViewType = 'tq-task-view';
 

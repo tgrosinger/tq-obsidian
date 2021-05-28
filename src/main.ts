@@ -1,10 +1,10 @@
-import { App, MarkdownPostProcessorContext, Modal, Plugin } from 'obsidian';
-import { convertLegacyTask } from './legacy-parser';
 import { FileInterface, TaskCache } from './file-interface';
+import { convertLegacyTask } from './legacy-parser';
 import { ISettings, settingsWithDefaults } from './settings';
-import CreateTaskUI from './ui/CreateTaskUI.svelte';
-import { TaskView, TQTaskViewType } from './task-view';
 import { TaskListView, TQTaskListViewType } from './task-list-view';
+import { TaskView, TQTaskViewType } from './task-view';
+import CreateTaskUI from './ui/CreateTaskUI.svelte';
+import { App, MarkdownPostProcessorContext, Modal, Plugin } from 'obsidian';
 
 export default class TQPlugin extends Plugin {
   public settings: ISettings;
@@ -106,7 +106,7 @@ export default class TQPlugin extends Plugin {
     this.settings = settingsWithDefaults(await this.loadData());
   }
 
-  private markdownPostProcessor = (
+  private readonly markdownPostProcessor = (
     el: HTMLElement,
     ctx: MarkdownPostProcessorContext,
   ): void => {
@@ -124,7 +124,7 @@ export default class TQPlugin extends Plugin {
     }
   };
 
-  private renderTaskControls = (
+  private readonly renderTaskControls = (
     el: HTMLElement,
     ctx: MarkdownPostProcessorContext,
   ): void => {
@@ -134,7 +134,7 @@ export default class TQPlugin extends Plugin {
 }
 
 class CreateTaskModal extends Modal {
-  private plugin: TQPlugin;
+  private readonly plugin: TQPlugin;
 
   constructor(app: App, plugin: TQPlugin) {
     super(app);

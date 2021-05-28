@@ -1,8 +1,8 @@
+import { Frontmatter, setCompleted, setDueDate } from './frontmatter';
+import type TQPlugin from './main';
 import { err, ok, Result } from 'neverthrow';
 import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
 import { Writable, writable } from 'svelte/store';
-import { Frontmatter, setCompleted, setDueDate } from './frontmatter';
-import type TQPlugin from './main';
 
 export interface Task {
   file: TFile;
@@ -22,8 +22,8 @@ export type FilePath = string;
 export class TaskCache {
   public tasks: Writable<Record<FilePath, Task>>;
 
-  private plugin: TQPlugin;
-  private app: App;
+  private readonly plugin: TQPlugin;
+  private readonly app: App;
 
   public constructor(plugin: TQPlugin, app: App) {
     this.plugin = plugin;
@@ -36,8 +36,8 @@ export class TaskCache {
   // task object. The task object will not be modified, though the modifiction
   // of the file will trigger that task to be reloaded and the UI to be
   // rerendered.
-  public readonly toggleChecked = async (task: Task): Promise<void> => {
-    return withFileContents(task.file, this.app.vault, (lines): boolean => {
+  public readonly toggleChecked = async (task: Task): Promise<void> =>
+    withFileContents(task.file, this.app.vault, (lines): boolean => {
       const re = task.checked ? /^- \[[ ]\]/ : /^- \[[xX]\]/;
       const newValue = task.checked ? '- [x]' : '- [ ]';
 
@@ -59,7 +59,6 @@ export class TaskCache {
 
       return true;
     });
-  };
 
   public readonly handleTaskModified = async (file: TFile): Promise<void> => {
     (await this.loadTask(file)).match(
@@ -97,7 +96,7 @@ export class TaskCache {
     const contents = await this.app.vault.read(file);
     const lines = contents.split('\n');
     return ok({
-      file: file,
+      file,
       md: contents,
       frontmatter: new Frontmatter(lines),
       line: lines[metadata.listItems[0].position.start.line].replace(
@@ -110,8 +109,8 @@ export class TaskCache {
 }
 
 export class FileInterface {
-  private plugin: TQPlugin;
-  private app: App;
+  private readonly plugin: TQPlugin;
+  private readonly app: App;
 
   public constructor(plugin: TQPlugin, app: App) {
     this.plugin = plugin;
@@ -127,12 +126,8 @@ export class FileInterface {
       return;
     }
 
-    return withFileContents(
-      tfile,
-      this.app.vault,
-      (lines: string[]): boolean => {
-        return this.processRepeating(tfile.path, lines);
-      },
+    return withFileContents(tfile, this.app.vault, (lines: string[]): boolean =>
+      this.processRepeating(tfile.path, lines),
     );
   };
 
@@ -202,15 +197,15 @@ export class FileInterface {
     due: string,
     repeat: string,
   ): string => {
-    let frontMatter = [];
-    if (due && due != '') {
+    const frontMatter = [];
+    if (due && due !== '') {
       frontMatter.push('due: ' + due);
     }
-    if (repeat && repeat != '') {
+    if (repeat && repeat !== '') {
       frontMatter.push('repeat: ' + repeat);
     }
 
-    let contents = [];
+    const contents = [];
     if (frontMatter.length > 0) {
       contents.push('---');
       contents.push(...frontMatter);

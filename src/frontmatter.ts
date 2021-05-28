@@ -5,7 +5,7 @@ export class Frontmatter {
   // TODO: Use index signatures?
   // [s: string]: any
 
-  private lines: string[];
+  private readonly lines: string[];
   private start: number;
   private end: number;
   private contents: { [k: string]: any };
@@ -18,15 +18,15 @@ export class Frontmatter {
 
   public readonly contains = (key: string): boolean => key in this.contents;
   public readonly get = (key: string): any => this.contents[key];
-  public readonly set = (key: string, value: any) =>
+  public readonly set = (key: string, value: any): void =>
     (this.contents[key] = value);
 
-  public readonly overwrite = () => {
+  public readonly overwrite = (): void => {
     const fmLines = dump(this.contents).trim();
     this.lines.splice(this.start, this.end - this.start + 1, fmLines);
   };
 
-  private readonly initBoundaries = () => {
+  private readonly initBoundaries = (): void => {
     this.start = this.lines.findIndex((line) => line === '---') + 1;
     if (this.start === 0) {
       throw new Error('tq: Unable to find frontmatter');
@@ -38,7 +38,7 @@ export class Frontmatter {
       1;
   };
 
-  private readonly parse = () => {
+  private readonly parse = (): void => {
     const fmLines = this.lines.slice(this.start, this.end + 1).join('\n');
     const fm = load(fmLines);
 
@@ -50,7 +50,7 @@ export class Frontmatter {
   };
 }
 
-export const setCompleted = (frontmatter: Frontmatter) => {
+export const setCompleted = (frontmatter: Frontmatter): void => {
   // Add the current date to the 'completed' frontmatter
   const today = window.moment().format('YYYY-MM-DD');
   if (!frontmatter.contains('completed')) {
@@ -68,7 +68,7 @@ export const setCompleted = (frontmatter: Frontmatter) => {
   }
 };
 
-export const setDueDate = (frontmatter: Frontmatter) => {
+export const setDueDate = (frontmatter: Frontmatter): void => {
   const repeatConfig = frontmatter.get('repeat');
   const repeater = RRule.fromText(repeatConfig);
   const next = repeater.after(window.moment().endOf('day').toDate());

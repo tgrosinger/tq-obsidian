@@ -1,5 +1,5 @@
-import { MarkdownView, WorkspaceLeaf } from 'obsidian';
 import type { FileInterface } from './file-interface';
+import { MarkdownView, WorkspaceLeaf } from 'obsidian';
 
 const taskRe = /\s*- \[[ xX>\-]\]/;
 const repeatScheduleRe = /[;📅]\s*([-a-zA-Z0-9 =;:\,]+)/;
@@ -55,6 +55,6 @@ const parseLegacyTaskLine = (
 
   return {
     repeat: repeatConfig,
-    description: description,
+    description,
   };
 };
