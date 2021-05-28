@@ -40,7 +40,6 @@ export class Frontmatter {
 
   private readonly parse = () => {
     const fmLines = this.lines.slice(this.start, this.end + 1).join('\n');
-    console.log(fmLines);
     const fm = load(fmLines);
 
     if (typeof fm === 'string' || typeof fm === 'number') {

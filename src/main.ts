@@ -1,17 +1,18 @@
 import { App, MarkdownPostProcessorContext, Modal, Plugin } from 'obsidian';
 import { convertLegacyTask } from './legacy-parser';
-import { FileInterface } from './file-interface';
+import { FileInterface, TaskCache } from './file-interface';
 import { ISettings, settingsWithDefaults } from './settings';
 import CreateTaskUI from './ui/CreateTaskUI.svelte';
 import { TaskView, TQTaskViewType } from './task-view';
-
-// TODO: Switch to Preact
-// https://github.com/liamcain/obsidian-preact-template
+import { TaskListView, TQTaskListViewType } from './task-list-view';
 
 export default class TQPlugin extends Plugin {
   public settings: ISettings;
   public fileInterface: FileInterface;
-  public view: TaskView;
+  public taskCache: TaskCache;
+
+  private view: TaskView;
+  private tq: TaskListView;
 
   public async onload(): Promise<void> {
     console.log('tq: Loading plugin v' + this.manifest.version);
@@ -19,11 +20,24 @@ export default class TQPlugin extends Plugin {
     await this.loadSettings();
 
     this.fileInterface = new FileInterface(this, this.app);
+    this.taskCache = new TaskCache(this, this.app);
 
     this.registerView(
       TQTaskViewType,
       (leaf) => (this.view = new TaskView(leaf, this)),
     );
+    this.registerView(
+      TQTaskListViewType,
+      (leaf) => (this.tq = new TaskListView(leaf, this)),
+    );
+
+    this.addRibbonIcon('checkbox-glyph', 'tq', () => {
+      // TODO: Open in new pane if current pane is pinned
+      this.app.workspace.activeLeaf.setViewState({
+        type: TQTaskListViewType,
+        state: {},
+      });
+    });
 
     // TODO: If triggered from a daily note, use that as the due date default
     this.addCommand({
@@ -43,10 +57,35 @@ export default class TQPlugin extends Plugin {
       },
     });
 
+    // TODO: on('rename')
+
     this.registerEvent(
       this.app.vault.on('modify', (file) => {
         if (file.path.startsWith(this.settings.TasksDir)) {
           this.fileInterface.handleTaskModified(file);
+        }
+      }),
+    );
+
+    this.registerEvent(
+      this.app.metadataCache.on('changed', (file) => {
+        if (file.path.startsWith(this.settings.TasksDir)) {
+          this.taskCache.handleTaskModified(file);
+        }
+      }),
+    );
+    this.registerEvent(
+      this.app.metadataCache.on('resolve', (file) => {
+        if (file.path.startsWith(this.settings.TasksDir)) {
+          this.taskCache.handleTaskModified(file);
+        }
+      }),
+    );
+
+    this.registerEvent(
+      this.app.vault.on('delete', (file) => {
+        if (file.path.startsWith(this.settings.TasksDir)) {
+          this.taskCache.handleTaskDeleted(file);
         }
       }),
     );
@@ -89,6 +128,7 @@ export default class TQPlugin extends Plugin {
     el: HTMLElement,
     ctx: MarkdownPostProcessorContext,
   ): void => {
+    // TODO: Add "Open in tq" link to the top using protocol handler
     el.createEl('p').setText('Hello?');
   };
 }

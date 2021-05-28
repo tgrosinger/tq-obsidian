@@ -1,6 +1,113 @@
+import { err, ok, Result } from 'neverthrow';
 import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
+import { Writable, writable } from 'svelte/store';
 import { Frontmatter, setCompleted, setDueDate } from './frontmatter';
 import type TQPlugin from './main';
+
+export interface Task {
+  file: TFile;
+  md: string;
+  frontmatter: Frontmatter;
+  line: string;
+  checked: boolean;
+}
+
+export type FilePath = string;
+
+/**
+ * TaskCache is the main interface for querying and modifying tasks. It
+ * implements a Svelte store, so changes to the underlying tasks can be
+ * automatically reflected in the UI.
+ */
+export class TaskCache {
+  public tasks: Writable<Record<FilePath, Task>>;
+
+  private plugin: TQPlugin;
+  private app: App;
+
+  public constructor(plugin: TQPlugin, app: App) {
+    this.plugin = plugin;
+    this.app = app;
+
+    this.tasks = writable({});
+  }
+
+  // toggleChecked will update the task file to the state represented in this
+  // task object. The task object will not be modified, though the modifiction
+  // of the file will trigger that task to be reloaded and the UI to be
+  // rerendered.
+  public readonly toggleChecked = async (task: Task): Promise<void> => {
+    return withFileContents(task.file, this.app.vault, (lines): boolean => {
+      const re = task.checked ? /^- \[[ ]\]/ : /^- \[[xX]\]/;
+      const newValue = task.checked ? '- [x]' : '- [ ]';
+
+      // Look for the task and check status
+      const taskLine = lines.findIndex((line) => re.test(line));
+      if (taskLine < 0) {
+        console.warn(
+          'tq: Unable to find a task line to toggle in file ' + task.file.path,
+        );
+        return false;
+      }
+
+      lines[taskLine] = lines[taskLine].replace(re, newValue);
+
+      // We update this here rather than waiting for the file modified handler
+      // so that the file is only updated once, rather than twice in rapid
+      // succession.
+      this.plugin.fileInterface.processRepeating(task.file.path, lines);
+
+      return true;
+    });
+  };
+
+  public readonly handleTaskModified = async (file: TFile): Promise<void> => {
+    (await this.loadTask(file)).match(
+      (newTask) => {
+        this.tasks.update((tasks): Record<FilePath, Task> => {
+          tasks[newTask.file.path] = newTask;
+          return tasks;
+        });
+      },
+      (e) => {
+        console.error(e);
+      },
+    );
+  };
+
+  public readonly handleTaskDeleted = (afile: TAbstractFile): void => {
+    this.tasks.update((tasks): Record<FilePath, Task> => {
+      delete tasks[afile.path];
+      return tasks;
+    });
+  };
+
+  private readonly loadTask = async (
+    file: TFile,
+  ): Promise<Result<Task, string>> => {
+    const metadata = this.app.metadataCache.getFileCache(file);
+    if (
+      !metadata.listItems ||
+      metadata.listItems.length < 1 ||
+      metadata.listItems[0].task === undefined
+    ) {
+      return err('tq: No task found in task file ' + file.path);
+    }
+
+    const contents = await this.app.vault.read(file);
+    const lines = contents.split('\n');
+    return ok({
+      file: file,
+      md: contents,
+      frontmatter: new Frontmatter(lines),
+      line: lines[metadata.listItems[0].position.start.line].replace(
+        /- \[[xX ]\]/,
+        '',
+      ),
+      checked: ['x', 'X'].contains(metadata.listItems[0].task),
+    });
+  };
+}
 
 export class FileInterface {
   private plugin: TQPlugin;
@@ -20,40 +127,55 @@ export class FileInterface {
       return;
     }
 
-    return withFileContents(tfile, this.app.vault, (lines): boolean => {
-      let frontmatter: Frontmatter;
-      try {
-        frontmatter = new Frontmatter(lines);
-      } catch (error) {
-        console.debug(error);
-        return false;
-      }
+    return withFileContents(
+      tfile,
+      this.app.vault,
+      (lines: string[]): boolean => {
+        return this.processRepeating(tfile.path, lines);
+      },
+    );
+  };
 
-      if (!frontmatter.contains('repeat')) {
-        // This is not a repeating task, no work to do
-        return false;
-      }
+  // processRepeating checks the provided lines to see if they describe a
+  // repeating task and whether that task is checked. If so, the task is
+  // unchecked, the due date updated according to the repeat config, and the
+  // current date added to the completed list in the frontmatter.
+  public readonly processRepeating = (
+    path: string,
+    lines: string[],
+  ): boolean => {
+    let frontmatter: Frontmatter;
+    try {
+      frontmatter = new Frontmatter(lines);
+    } catch (error) {
+      console.debug(error);
+      return false;
+    }
 
-      // Look for the task and check status
-      const taskLine = lines.findIndex((line) => /^- \[[xX]\]/.test(line));
-      if (taskLine < 0) {
-        // Completed task not found, skip
-        return false;
-      }
+    if (!frontmatter.contains('repeat')) {
+      // This is not a repeating task, no work to do
+      return false;
+    }
 
-      console.debug('tq: Reloading repeating task in ' + tfile.path);
+    // Look for the task and check status
+    const taskLine = lines.findIndex((line) => /^- \[[xX]\]/.test(line));
+    if (taskLine < 0) {
+      // Completed task not found, skip
+      return false;
+    }
 
-      // Uncheck the task
-      lines[taskLine] = lines[taskLine].replace(/\[[xX]\]/, '[ ]');
+    console.debug('tq: Reloading repeating task in ' + path);
 
-      setCompleted(frontmatter);
-      setDueDate(frontmatter);
+    // Uncheck the task
+    lines[taskLine] = lines[taskLine].replace(/\[[xX]\]/, '[ ]');
 
-      frontmatter.overwrite();
+    setCompleted(frontmatter);
+    setDueDate(frontmatter);
 
-      new Notice('New task repetition created');
-      return true;
-    });
+    frontmatter.overwrite();
+
+    new Notice('New task repetition created');
+    return true;
   };
 
   public readonly storeNewTask = async (
