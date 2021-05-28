@@ -1,16 +1,33 @@
-import { ItemView, WorkspaceLeaf } from 'obsidian';
 import type TQPlugin from './main';
 import TasksUI from './ui/TasksUI.svelte';
+import { ItemView, WorkspaceLeaf } from 'obsidian';
+import { Writable,writable } from 'svelte/store';
 
 export const TQTaskListViewType = 'tq-task-list-view';
 
+export interface SharedState {
+  showCompleted: boolean;
+}
+
 export class TaskListView extends ItemView {
   private readonly plugin: TQPlugin;
+  private readonly state: Writable<SharedState>;
 
   constructor(leaf: WorkspaceLeaf, plugin: TQPlugin) {
     super(leaf);
 
     this.plugin = plugin;
+    this.state = writable({
+      showCompleted: false,
+    });
+
+    this.addAction('redo-glyph', 'Toggle show completed', () => {
+      this.state.update((state) => {
+        state.showCompleted = !state.showCompleted;
+        return state;
+      });
+    });
+
     this.redraw();
   }
   public getViewType(): string {
@@ -47,6 +64,7 @@ export class TaskListView extends ItemView {
       props: {
         plugin: this.plugin,
         view: this.leaf.view,
+        state: this.state,
       },
     });
   };
