@@ -1,12 +1,13 @@
 import type TQPlugin from './main';
 import TasksUI from './ui/TasksUI.svelte';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
-import { Writable,writable } from 'svelte/store';
+import { Writable, writable } from 'svelte/store';
 
 export const TQTaskListViewType = 'tq-task-list-view';
 
 export interface SharedState {
   showCompleted: boolean;
+  groupby: 'due' | 'none';
 }
 
 export class TaskListView extends ItemView {
@@ -19,6 +20,7 @@ export class TaskListView extends ItemView {
     this.plugin = plugin;
     this.state = writable({
       showCompleted: false,
+      groupby: 'none',
     });
 
     this.addAction('redo-glyph', 'Toggle show completed', () => {

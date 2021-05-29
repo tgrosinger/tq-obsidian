@@ -3,8 +3,10 @@
   import type { SharedState } from '../task-list-view';
 
   import type TQPlugin from '../main';
-  import TaskList from './TaskList.svelte';
+  import TaskListBasic from './TaskListBasic.svelte';
+  import TaskListByDue from './TaskListByDue.svelte';
   import type { Writable } from 'svelte/store';
+  import TaskListControls from './TaskListControls.svelte';
 
   export let plugin: TQPlugin;
   export let view: Component;
@@ -12,5 +14,11 @@
 </script>
 
 <div>
-  <TaskList {plugin} {view} {state} />
+  <TaskListControls {state} />
+
+  {#if $state.groupby === 'due'}
+    <TaskListByDue {plugin} {view} {state} />
+  {:else if $state.groupby === 'none'}
+    <TaskListBasic {plugin} {view} {state} />
+  {/if}
 </div>

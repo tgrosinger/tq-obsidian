@@ -15,6 +15,8 @@
 </script>
 
 <div>
+  <p>By Due</p>
+
   {#each Object.entries($tasks) as [filepath, task] (filepath)}
     {#if !task.checked || $state.showCompleted}
       <TaskListTask {taskCache} {task} {view} />
