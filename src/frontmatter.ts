@@ -1,3 +1,4 @@
+import { throws } from 'assert';
 import { dump, load } from 'js-yaml';
 import RRule from 'rrule';
 
@@ -29,7 +30,10 @@ export class Frontmatter {
   private readonly initBoundaries = (): void => {
     this.start = this.lines.findIndex((line) => line === '---') + 1;
     if (this.start === 0) {
-      throw new Error('tq: Unable to find frontmatter');
+      console.debug('tq: No frontmatter found for note');
+      this.start = -1;
+      this.end = -1;
+      return;
     }
 
     this.end =
@@ -39,6 +43,11 @@ export class Frontmatter {
   };
 
   private readonly parse = (): void => {
+    if (this.start < 0 || this.end < this.start) {
+      this.contents = {};
+      return;
+    }
+
     const fmLines = this.lines.slice(this.start, this.end + 1).join('\n');
     const fm = load(fmLines);
 

@@ -6,20 +6,39 @@
   import TaskListTask from './TaskListTask.svelte';
   import type { Writable } from 'svelte/store';
 
+  import { filter, groupBy } from 'lodash';
+
   export let plugin: TQPlugin;
   export let view: Component;
   export let state: Writable<SharedState>;
 
   let taskCache = plugin.taskCache;
   let tasks = taskCache.tasks;
+  $: filteredTasks = filter(
+    $tasks,
+    (task) => !task.checked || $state.showCompleted,
+  );
+  $: tasksByDue = groupBy(filteredTasks, (task) => task.due);
+  $: dueDates = Object.keys(tasksByDue);
+  $: {
+    dueDates.sort((a, b) => {
+      if (a === undefined) {
+        return -1;
+      } else if (b === undefined) {
+        return 1;
+      }
+      const dateA = window.moment(a);
+      const dateB = window.moment(b);
+      return dateA.isBefore(dateB) ? -1 : 1;
+    });
+  }
 </script>
 
 <div>
-  <p>By Due</p>
-
-  {#each Object.entries($tasks) as [filepath, task] (filepath)}
-    {#if !task.checked || $state.showCompleted}
+  {#each dueDates as dueDate}
+    <h3>{dueDate}</h3>
+    {#each tasksByDue[dueDate] as task}
       <TaskListTask {taskCache} {task} {view} />
-    {/if}
+    {/each}
   {/each}
 </div>

@@ -3,6 +3,7 @@ import type TQPlugin from './main';
 import { err, ok, Result } from 'neverthrow';
 import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
 import { Writable, writable } from 'svelte/store';
+import type { Moment } from 'moment';
 
 export interface Task {
   file: TFile;
@@ -10,6 +11,7 @@ export interface Task {
   frontmatter: Frontmatter;
   line: string;
   checked: boolean;
+  due: string | undefined;
 }
 
 export type FilePath = string;
@@ -95,15 +97,18 @@ export class TaskCache {
 
     const contents = await this.app.vault.read(file);
     const lines = contents.split('\n');
+    const frontmatter = new Frontmatter(lines);
+    const due = frontmatter.get('due');
     return ok({
       file,
       md: contents,
-      frontmatter: new Frontmatter(lines),
+      frontmatter: frontmatter,
       line: lines[metadata.listItems[0].position.start.line].replace(
         /- \[[xX ]\]/,
         '',
       ),
       checked: ['x', 'X'].contains(metadata.listItems[0].task),
+      due: due ? window.moment(due).format('YYYY-MM-DD') : undefined,
     });
   };
 }

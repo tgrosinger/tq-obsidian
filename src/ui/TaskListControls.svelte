@@ -12,7 +12,7 @@
   };
 </script>
 
-<div>
+<div id="tq-task-controls">
   <p>Task Controls</p>
 
   <label>
@@ -24,3 +24,9 @@
     Group by due date
   </label>
 </div>
+
+<style>
+  #tq-task-controls {
+    padding-bottom: 10px;
+  }
+</style>
