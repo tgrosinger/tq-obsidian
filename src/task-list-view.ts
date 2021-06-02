@@ -60,10 +60,10 @@ export class TaskListView extends ItemView {
   public readonly redraw = (): void => {
     const contentEl = this.containerEl.children[1];
 
-    // See if I can use the markdown renderer to display the content?
     new TasksUI({
       target: contentEl,
       props: {
+        app: this.app,
         plugin: this.plugin,
         view: this.leaf.view,
         state: this.state,

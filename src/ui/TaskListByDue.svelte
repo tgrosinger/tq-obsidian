@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Component } from 'obsidian';
+  import type { Component, App } from 'obsidian';
   import type { SharedState } from '../task-list-view';
 
   import type TQPlugin from '../main';
@@ -8,6 +8,7 @@
 
   import { filter, groupBy } from 'lodash';
 
+  export let app: App;
   export let plugin: TQPlugin;
   export let view: Component;
   export let state: Writable<SharedState>;
@@ -38,7 +39,7 @@
   {#each dueDates as dueDate}
     <h3>{dueDate}</h3>
     {#each tasksByDue[dueDate] as task}
-      <TaskListTask {taskCache} {task} {view} />
+      <TaskListTask {taskCache} {task} {view} {app} />
     {/each}
   {/each}
 </div>
