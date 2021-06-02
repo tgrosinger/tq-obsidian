@@ -99,6 +99,7 @@ export class TaskCache {
     const lines = contents.split('\n');
     const frontmatter = new Frontmatter(lines);
     const due = frontmatter.get('due');
+    console.log(due);
     return ok({
       file,
       md: contents,
@@ -108,7 +109,9 @@ export class TaskCache {
         '',
       ),
       checked: ['x', 'X'].contains(metadata.listItems[0].task),
-      due: due ? window.moment(due).format('YYYY-MM-DD') : undefined,
+      due: due
+        ? window.moment(due).endOf('day').format('YYYY-MM-DD')
+        : undefined,
     });
   };
 }
@@ -204,7 +207,7 @@ export class FileInterface {
   ): string => {
     const frontMatter = [];
     if (due && due !== '') {
-      frontMatter.push('due: ' + due);
+      frontMatter.push(`due: '${due}'`);
     }
     if (repeat && repeat !== '') {
       frontMatter.push('repeat: ' + repeat);

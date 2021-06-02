@@ -1,4 +1,3 @@
-import { throws } from 'assert';
 import { dump, load } from 'js-yaml';
 import RRule from 'rrule';
 
@@ -23,7 +22,9 @@ export class Frontmatter {
     (this.contents[key] = value);
 
   public readonly overwrite = (): void => {
-    const fmLines = dump(this.contents).trim();
+    const replacer = (k: string, v: any): any =>
+      k === 'due' ? window.moment(v).endOf('day').format('YYYY-MM-DD') : v;
+    const fmLines = dump(this.contents, { replacer: replacer }).trim();
     this.lines.splice(this.start, this.end - this.start + 1, fmLines);
   };
 
@@ -81,6 +82,6 @@ export const setDueDate = (frontmatter: Frontmatter): void => {
   const repeatConfig = frontmatter.get('repeat');
   const repeater = RRule.fromText(repeatConfig);
   const next = repeater.after(window.moment().endOf('day').toDate());
-  const due = window.moment(next).startOf('day').format('YYYY-MM-DD');
+  const due = window.moment(next).startOf('day').toDate();
   frontmatter.set('due', due);
 };
