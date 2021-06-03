@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { Task, TaskCache } from '../file-interface';
   import { slide } from 'svelte/transition';
-  import { quintOut } from 'svelte/easing';
   import { App, Component, MarkdownRenderer } from 'obsidian';
   import { afterUpdate, onMount } from 'svelte';
   import { chevronDown, externalLink } from '../graphics';
@@ -52,31 +51,33 @@
 </script>
 
 <div class={rootClasses}>
-  <input
-    type="checkbox"
-    bind:checked={task.checked}
-    on:change={toggleChecked}
-  />
-  <span bind:this={lineEl} />
-  <span on:click={viewSource}>
-    {@html externalLink}
-  </span>
+  <div class="task-row">
+    <input
+      type="checkbox"
+      bind:checked={task.checked}
+      on:change={toggleChecked}
+    />
+    <span class="task-line" bind:this={lineEl} />
+    <span on:click={viewSource}>
+      {@html externalLink}
+    </span>
 
-  {#if !expanded}
-    <span class="expand-chevron" on:click={toggleExpanded}>
-      {@html chevronDown}
-    </span>
-  {:else}
-    <span class="expand-chevron rotated-180" on:click={toggleExpanded}>
-      {@html chevronDown}
-    </span>
-  {/if}
+    {#if !expanded}
+      <span class="expand-chevron" on:click={toggleExpanded}>
+        {@html chevronDown}
+      </span>
+    {:else}
+      <span class="expand-chevron rotated-180" on:click={toggleExpanded}>
+        {@html chevronDown}
+      </span>
+    {/if}
+  </div>
 
   {#if expanded}
     <div
+      class="task-content"
       transition:slide={{
         duration: 300,
-        easing: quintOut,
       }}
     >
       {#if repeat !== undefined}
@@ -105,12 +106,24 @@
     padding: 5px;
   }
 
+  .task-row {
+    display: flex;
+  }
+
+  .task-line {
+    flex: 1;
+  }
+
   .expanded-root {
     margin: 10px 0;
   }
 
+  .task-content {
+  }
+
   .expand-chevron {
     display: inline-block;
+    padding: 0 10px;
   }
 
   .rotated-180 {

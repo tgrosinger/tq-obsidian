@@ -24,7 +24,7 @@ export class Frontmatter {
   public readonly overwrite = (): void => {
     const replacer = (k: string, v: any): any =>
       k === 'due' ? window.moment(v).endOf('day').format('YYYY-MM-DD') : v;
-    const fmLines = dump(this.contents, { replacer: replacer }).trim();
+    const fmLines = dump(this.contents, { replacer }).trim();
     this.lines.splice(this.start, this.end - this.start + 1, fmLines);
   };
 

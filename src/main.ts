@@ -1,10 +1,12 @@
 import { FileInterface, TaskCache } from './file-interface';
 import { convertLegacyTask } from './legacy-parser';
+import { CreateTaskModal } from './modals';
 import { ISettings, settingsWithDefaults } from './settings';
 import { TaskListView, TQTaskListViewType } from './task-list-view';
 import { TaskView, TQTaskViewType } from './task-view';
-import CreateTaskUI from './ui/CreateTaskUI.svelte';
-import { App, MarkdownPostProcessorContext, Modal, Plugin } from 'obsidian';
+import { MarkdownPostProcessorContext, Plugin } from 'obsidian';
+
+// TODO: Add action from calendar plugin to show tasks for a selected day
 
 export default class TQPlugin extends Plugin {
   public settings: ISettings;
@@ -130,31 +132,5 @@ export default class TQPlugin extends Plugin {
   ): void => {
     // TODO: Add "Open in tq" link to the top using protocol handler
     el.createEl('p').setText('Hello?');
-  };
-}
-
-class CreateTaskModal extends Modal {
-  private readonly plugin: TQPlugin;
-
-  constructor(app: App, plugin: TQPlugin) {
-    super(app);
-    this.plugin = plugin;
-  }
-
-  public onOpen = (): void => {
-    const { titleEl, contentEl } = this;
-    titleEl.setText('Create New Task');
-    new CreateTaskUI({
-      target: contentEl,
-      props: {
-        close: () => this.close(),
-        store: this.plugin.fileInterface.storeNewTask,
-      },
-    });
-  };
-
-  public onClose = (): void => {
-    const { contentEl } = this;
-    contentEl.empty();
   };
 }

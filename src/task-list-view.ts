@@ -1,4 +1,5 @@
 import type TQPlugin from './main';
+import { CreateTaskModal } from './modals';
 import TasksUI from './ui/TasksUI.svelte';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import { Writable, writable } from 'svelte/store';
@@ -20,7 +21,7 @@ export class TaskListView extends ItemView {
     this.plugin = plugin;
     this.state = writable({
       showCompleted: false,
-      groupby: 'none',
+      groupby: 'due',
     });
 
     this.addAction('redo-glyph', 'Toggle show completed', () => {
@@ -28,6 +29,10 @@ export class TaskListView extends ItemView {
         state.showCompleted = !state.showCompleted;
         return state;
       });
+    });
+
+    this.addAction('plus-with-circle', 'Add task', () => {
+      new CreateTaskModal(this.app, this.plugin).open();
     });
 
     this.redraw();
