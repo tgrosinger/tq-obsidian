@@ -48,6 +48,14 @@
     }
     leaf.openFile(task.file);
   };
+
+  const showDuePicker = () => {
+    console.log('Showing due picker');
+  };
+
+  const showRepeatPicker = () => {
+    console.log('Showing repeat picker');
+  };
 </script>
 
 <div class={rootClasses}>
@@ -80,19 +88,28 @@
         duration: 300,
       }}
     >
-      {#if repeat !== undefined}
-        <div>
-          <span>Repeat Schedule: </span><span>{repeat}</span>
-        </div>
-      {/if}
-      {#if due !== undefined}
-        <div>
-          <span>Due: </span><span>{due}</span>
-        </div>
-      {/if}
+      <div>
+        <span class="label">Due:</span>
+        <input
+          type="text"
+          class="value"
+          value={due || 'No due date'}
+          on:click={showDuePicker}
+        />
+      </div>
+      <div>
+        <span class="label">Repeat Schedule:</span>
+        <input
+          type="text"
+          class="value"
+          value={repeat || 'Does not repeat'}
+          on:click={showRepeatPicker}
+        />
+      </div>
       {#if lastCompleted !== undefined}
         <div>
-          <span>Last Completed: </span><span>{lastCompleted}</span>
+          <span class="label">Last Completed:</span>
+          <input type="text" class="value" value={lastCompleted} disabled />
         </div>
       {/if}
     </div>
@@ -118,9 +135,6 @@
     margin: 10px 0;
   }
 
-  .task-content {
-  }
-
   .expand-chevron {
     display: inline-block;
     padding: 0 10px;
@@ -128,5 +142,18 @@
 
   .rotated-180 {
     transform: rotate(180deg);
+  }
+
+  .task-content div {
+    margin: 5px;
+  }
+
+  .label {
+    width: 150px;
+    display: inline-block;
+  }
+
+  .value {
+    width: 300px;
   }
 </style>
