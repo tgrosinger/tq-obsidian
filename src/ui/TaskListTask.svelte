@@ -1,12 +1,14 @@
 <script lang="ts">
-  import type { Task, TaskCache } from '../file-interface';
+  import type { Task } from '../file-interface';
   import { slide } from 'svelte/transition';
-  import { App, Component, MarkdownRenderer } from 'obsidian';
+  import { Component, MarkdownRenderer } from 'obsidian';
   import { afterUpdate, onMount } from 'svelte';
   import { chevronDown, externalLink } from '../graphics';
+  import { DuePickerModal } from '../modals';
+  import type { Moment } from 'moment';
+  import type TQPlugin from '../main';
 
-  export let app: App;
-  export let taskCache: TaskCache;
+  export let plugin: TQPlugin;
   export let task: Task;
   export let view: Component;
 
@@ -14,7 +16,7 @@
   let expanded = false;
 
   const repeat = task.frontmatter.get('repeat');
-  const due = task.frontmatter.get('due');
+  let due = task.due;
   const completed = task.frontmatter.get('completed');
   const lastCompleted = completed ? completed[completed.length - 1] : undefined;
 
@@ -38,19 +40,21 @@
   };
 
   const toggleChecked = () => {
-    taskCache.toggleChecked(task);
+    plugin.taskCache.toggleChecked(task);
   };
 
   const viewSource = () => {
-    let leaf = app.workspace.activeLeaf;
+    let leaf = plugin.app.workspace.activeLeaf;
     if (leaf.getViewState().pinned) {
-      leaf = app.workspace.createLeafBySplit(leaf);
+      leaf = plugin.app.workspace.createLeafBySplit(leaf);
     }
     leaf.openFile(task.file);
   };
 
   const showDuePicker = () => {
-    console.log('Showing due picker');
+    new DuePickerModal(plugin.app, window.moment(due), (newDate: Moment) => {
+      plugin.fileInterface.updateTaskDue(task.file, plugin.app.vault, newDate);
+    }).open();
   };
 
   const showRepeatPicker = () => {

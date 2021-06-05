@@ -8,7 +8,6 @@
 
   import { filter, groupBy } from 'lodash';
 
-  export let app: App;
   export let plugin: TQPlugin;
   export let view: Component;
   export let state: Writable<SharedState>;
@@ -36,10 +35,10 @@
 </script>
 
 <div>
-  {#each dueDates as dueDate}
+  {#each dueDates as dueDate (dueDate)}
     <h3>{dueDate}</h3>
-    {#each tasksByDue[dueDate] as task}
-      <TaskListTask {taskCache} {task} {view} {app} />
+    {#each tasksByDue[dueDate] as task (task.line)}
+      <TaskListTask {task} {view} {plugin} />
     {/each}
   {/each}
 </div>

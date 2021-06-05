@@ -68,7 +68,6 @@ export class TaskListView extends ItemView {
     new TasksUI({
       target: contentEl,
       props: {
-        app: this.app,
         plugin: this.plugin,
         view: this.leaf.view,
         state: this.state,

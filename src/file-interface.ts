@@ -99,7 +99,6 @@ export class TaskCache {
     const lines = contents.split('\n');
     const frontmatter = new Frontmatter(lines);
     const due = frontmatter.get('due');
-    console.log(due);
     return ok({
       file,
       md: contents,
@@ -137,6 +136,26 @@ export class FileInterface {
     return withFileContents(tfile, this.app.vault, (lines: string[]): boolean =>
       this.processRepeating(tfile.path, lines),
     );
+  };
+
+  public readonly updateTaskDue = async (
+    file: TFile,
+    vault: Vault,
+    due: Moment,
+  ): Promise<void> => {
+    return withFileContents(file, vault, (lines: string[]): boolean => {
+      let frontmatter: Frontmatter;
+      try {
+        frontmatter = new Frontmatter(lines);
+      } catch (error) {
+        console.debug(error);
+        return false;
+      }
+
+      frontmatter.set('due', due.startOf('day').toDate());
+      frontmatter.overwrite();
+      return true;
+    });
   };
 
   // processRepeating checks the provided lines to see if they describe a
