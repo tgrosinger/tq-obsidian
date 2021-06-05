@@ -1,5 +1,7 @@
 <script lang="ts">
-  import RepeatBuilder from './RepeatBuilder.svelte';
+  import RepeatPicker from './RepeatPicker.svelte';
+  import DuePicker from './DuePicker.svelte';
+  import type { Moment } from 'moment';
 
   export let close: () => void;
   export let store: (description: string, due: string, repeat: string) => void;
@@ -7,12 +9,15 @@
   let description = '';
   let repeats = false;
   let repeatConfig = '';
-  //let due = window.moment().format('YYYY-MM-DD');
-  let due: string;
+  let due = window.moment();
 
   const save = () => {
-    store(description, due, repeats ? repeatConfig : '');
+    store(description, due.format('YYYY-MM-DD'), repeats ? repeatConfig : '');
     close();
+  };
+
+  const setDue = (date: Moment): void => {
+    due = date;
   };
 
   // TODO: Allow setting arbitrary fields in this form, configured in settings
@@ -26,22 +31,7 @@
   </label>
 </div>
 
-<div>
-  <label>
-    Due
-    <input type="date" bind:value={due} />
-  </label>
-</div>
-
-<div>
-  <label>
-    Repeats
-    <input type="checkbox" bind:checked={repeats} />
-  </label>
-</div>
-
-{#if repeats}
-  <RepeatBuilder bind:repeatConfig />
-{/if}
+<DuePicker startDate={due} close={null} set={setDue} />
+<RepeatPicker bind:repeats bind:repeatConfig close={null} set={null} />
 
 <button on:click={save}>Save</button>

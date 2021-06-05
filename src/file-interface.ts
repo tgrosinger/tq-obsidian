@@ -142,8 +142,7 @@ export class FileInterface {
     file: TFile,
     vault: Vault,
     due: Moment,
-  ): Promise<void> => {
-    return withFileContents(file, vault, (lines: string[]): boolean => {
+  ): Promise<void> => withFileContents(file, vault, (lines: string[]): boolean => {
       let frontmatter: Frontmatter;
       try {
         frontmatter = new Frontmatter(lines);
@@ -156,7 +155,24 @@ export class FileInterface {
       frontmatter.overwrite();
       return true;
     });
-  };
+
+  public readonly updateTaskRepeat = async (
+    file: TFile,
+    vault: Vault,
+    repeatConfig: string,
+  ): Promise<void> => withFileContents(file, vault, (lines: string[]): boolean => {
+      let frontmatter: Frontmatter;
+      try {
+        frontmatter = new Frontmatter(lines);
+      } catch (error) {
+        console.debug(error);
+        return false;
+      }
+
+      frontmatter.set('repeat', repeatConfig);
+      frontmatter.overwrite();
+      return true;
+    });
 
   // processRepeating checks the provided lines to see if they describe a
   // repeating task and whether that task is checked. If so, the task is

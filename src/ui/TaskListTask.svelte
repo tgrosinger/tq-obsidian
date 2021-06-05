@@ -4,7 +4,7 @@
   import { Component, MarkdownRenderer } from 'obsidian';
   import { afterUpdate, onMount } from 'svelte';
   import { chevronDown, externalLink } from '../graphics';
-  import { DuePickerModal } from '../modals';
+  import { DuePickerModal, RepeatPickerModal } from '../modals';
   import type { Moment } from 'moment';
   import type TQPlugin from '../main';
 
@@ -15,7 +15,7 @@
   let lineEl: HTMLElement;
   let expanded = false;
 
-  const repeat = task.frontmatter.get('repeat');
+  let repeat = task.frontmatter.get('repeat');
   let due = task.due;
   const completed = task.frontmatter.get('completed');
   const lastCompleted = completed ? completed[completed.length - 1] : undefined;
@@ -58,7 +58,14 @@
   };
 
   const showRepeatPicker = () => {
-    console.log('Showing repeat picker');
+    new RepeatPickerModal(plugin.app, repeat, (repeatConfig: string) => {
+      repeat = repeatConfig;
+      plugin.fileInterface.updateTaskRepeat(
+        task.file,
+        plugin.app.vault,
+        repeatConfig,
+      );
+    }).open();
   };
 </script>
 

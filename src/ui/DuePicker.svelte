@@ -11,7 +11,9 @@
     isMetaPressed: boolean,
   ): Promise<void> => {
     set(selectedDate);
-    close();
+    if (close) {
+      close();
+    }
   };
 </script>
 
