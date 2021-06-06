@@ -71,9 +71,7 @@
   };
 </script>
 
-<div class="modal">
-  <h3>Task Repetition</h3>
-
+<div class="form">
   <div>
     <label>
       Repeats
@@ -82,7 +80,7 @@
   </div>
 
   {#if repeats}
-    <div>
+    <div class="interval-row">
       <span>Every</span>
       <input
         id="interval-selector"
@@ -110,7 +108,8 @@
           {$repeater.interval > 1 ? 'Years' : 'Year'}
         </option>
       </select>
-
+    </div>
+    <div class="interval-row">
       {#if $repeater.frequency === Frequency.WEEKLY}
         <div class="days-btn-group">
           <ButtonGroup
@@ -169,24 +168,27 @@
 </div>
 
 <style>
-  #frequency-selector {
-    width: 103px;
-  }
-
-  .modal input {
+  .form input {
     border-radius: 0.5em;
     padding: 19px 14px;
   }
 
   #interval-selector {
     width: 60px;
+    height: 40px;
+  }
+
+  .interval-row {
+    margin: 5px 0px;
   }
 
   #frequency-selector {
     width: 103px;
+    height: 40px;
   }
 
   #onthe-selector {
     width: 60px;
+    height: 40px;
   }
 </style>

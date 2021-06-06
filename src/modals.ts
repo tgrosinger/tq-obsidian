@@ -44,7 +44,7 @@ export class DuePickerModal extends Modal {
 
   public onOpen = (): void => {
     const { titleEl, contentEl } = this;
-    titleEl.setText('Create New Task');
+    titleEl.setText('Set Due Date');
     new DuePicker({
       target: contentEl,
       props: {
@@ -78,7 +78,7 @@ export class RepeatPickerModal extends Modal {
 
   public onOpen = (): void => {
     const { titleEl, contentEl } = this;
-    titleEl.setText('Create New Task');
+    titleEl.setText('Set Repeat Config');
     new RepeatPicker({
       target: contentEl,
       props: {

@@ -44,23 +44,32 @@
   };
 </script>
 
-{#each _buttons as button}
-  <button
-    class={button.active ? activeClass : inactiveClass}
-    on:click={newToggleButton(button)}
-  >
-    {#if button.icon}
-      {@html button.icon}
-    {/if}
-    {#if button.text}
-      {button.text}
-    {/if}
-  </button>
-{/each}
+<div class="buttons">
+  {#each _buttons as button (button.id)}
+    <button
+      class={button.active ? activeClass : inactiveClass}
+      on:click={newToggleButton(button)}
+    >
+      {#if button.icon}
+        {@html button.icon}
+      {/if}
+      {#if button.text}
+        {button.text}
+      {/if}
+    </button>
+  {/each}
+</div>
 
 <style>
-  button {
-    padding: 6px 8px;
-    margin: 3px 6px 3px 0;
+  .buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+  }
+
+  .buttons button {
+    flex: 1;
+    margin: 5px 0;
+    padding: 5px 10px;
   }
 </style>

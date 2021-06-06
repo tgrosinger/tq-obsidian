@@ -6,32 +6,74 @@
   export let close: () => void;
   export let store: (description: string, due: string, repeat: string) => void;
 
+  const taskPlaceholders = [
+    'Feed the chickens',
+    'Unclog the toilet',
+    'Paint the house',
+    'Weed the garden',
+    'Water the orchard',
+  ];
+
   let description = '';
   let repeats = false;
   let repeatConfig = '';
-  let due = window.moment();
+  let due = '';
+  let showDuePicker = false;
 
   const save = () => {
-    store(description, due.format('YYYY-MM-DD'), repeats ? repeatConfig : '');
+    store(description, due, repeats ? repeatConfig : '');
     close();
   };
 
   const setDue = (date: Moment): void => {
-    due = date;
+    due = date.format('YYYY-MM-DD');
+  };
+
+  const getPlaceholder = (): string => {
+    const idx = Math.floor(Math.random() * taskPlaceholders.length);
+    return taskPlaceholders[idx];
   };
 
   // TODO: Allow setting arbitrary fields in this form, configured in settings
 </script>
 
 <div>
-  <label>
-    Description
-    <!-- TODO: Rotating placeholders? -->
-    <input type="text" bind:value={description} placeholder="Walk the dog" />
-  </label>
+  <label for="task-description"> Description </label>
+  <input
+    id="task-description"
+    type="text"
+    bind:value={description}
+    placeholder={getPlaceholder()}
+  />
 </div>
-
-<DuePicker startDate={due} close={null} set={setDue} />
+<div>
+  <label for="due-date"> Due </label>
+  <input
+    id="due-date"
+    type="text"
+    placeholder="No due date"
+    bind:value={due}
+    on:focus={() => (showDuePicker = true)}
+  />
+</div>
+<div class={showDuePicker ? 'show' : 'hidden'}>
+  <DuePicker
+    startDate={due === '' ? window.moment() : window.moment(due)}
+    close={() => (showDuePicker = false)}
+    set={setDue}
+  />
+</div>
 <RepeatPicker bind:repeats bind:repeatConfig close={null} set={null} />
 
 <button on:click={save}>Save</button>
+
+<style>
+  .hidden {
+    display: none;
+  }
+
+  label {
+    width: 150px;
+    display: inline-block;
+  }
+</style>
