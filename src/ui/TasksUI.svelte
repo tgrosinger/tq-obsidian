@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { Component, App } from 'obsidian';
+  import type { Component } from 'obsidian';
   import type { SharedState } from '../task-list-view';
 
   import type TQPlugin from '../main';
-  import TaskListBasic from './TaskListBasic.svelte';
+  import TaskListByScore from './TaskListByScore.svelte';
   import TaskListByDue from './TaskListByDue.svelte';
   import type { Writable } from 'svelte/store';
   import TaskListControls from './TaskListControls.svelte';
@@ -16,9 +16,9 @@
 <div>
   <TaskListControls {state} />
 
-  {#if $state.groupby === 'due'}
+  {#if $state.orderby === 'due'}
     <TaskListByDue {plugin} {view} {state} />
-  {:else if $state.groupby === 'none'}
-    <TaskListBasic {plugin} {view} {state} />
+  {:else if $state.orderby === 'score'}
+    <TaskListByScore {plugin} {view} {state} />
   {/if}
 </div>

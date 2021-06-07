@@ -14,6 +14,11 @@ export interface Task {
   due: string | undefined;
 }
 
+export const CalcTaskScore = (task: Task): number => {
+  // TODO: Calculate task score
+  return -1;
+};
+
 export type FilePath = string;
 
 /**
@@ -142,7 +147,8 @@ export class FileInterface {
     file: TFile,
     vault: Vault,
     due: Moment,
-  ): Promise<void> => withFileContents(file, vault, (lines: string[]): boolean => {
+  ): Promise<void> =>
+    withFileContents(file, vault, (lines: string[]): boolean => {
       let frontmatter: Frontmatter;
       try {
         frontmatter = new Frontmatter(lines);
@@ -160,7 +166,8 @@ export class FileInterface {
     file: TFile,
     vault: Vault,
     repeatConfig: string,
-  ): Promise<void> => withFileContents(file, vault, (lines: string[]): boolean => {
+  ): Promise<void> =>
+    withFileContents(file, vault, (lines: string[]): boolean => {
       let frontmatter: Frontmatter;
       try {
         frontmatter = new Frontmatter(lines);

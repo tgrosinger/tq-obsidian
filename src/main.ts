@@ -93,6 +93,24 @@ export default class TQPlugin extends Plugin {
       }),
     );
 
+    this.registerEvent(
+      this.app.workspace.on('file-menu', (menu, file, source) => {
+        if (source !== 'calendar-context-menu') {
+          return;
+        }
+
+        // TODO: No menu for days that don't have a note yet?
+
+        menu.addItem((item) => {
+          item.setTitle('Show tasks for day');
+          item.setIcon('checkbox-glyph');
+          item.onClick(() => {
+            // TODO
+          });
+        });
+      }),
+    );
+
     // this.registerMarkdownPostProcessor(this.markdownPostProcessor);
 
     this.registerMarkdownCodeBlockProcessor(
@@ -119,7 +137,8 @@ export default class TQPlugin extends Plugin {
     el: HTMLElement,
     ctx: MarkdownPostProcessorContext,
   ): void => {
-    // TODO: Allow adding config options on other lines, such as "show-completed"
+    // TODO: Allow adding config options on other lines, such as
+    // "show-completed" and "show-overdue"
     new TaskListForDate({
       target: el,
       props: {

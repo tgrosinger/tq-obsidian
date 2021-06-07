@@ -1,32 +1,33 @@
 <script lang="ts">
   import type { SharedState } from '../task-list-view';
   import type { Writable } from 'svelte/store';
+  import { calendar, ol } from '../graphics';
 
   export let state: Writable<SharedState>;
 
-  const toggleGroupBy = () => {
+  const setOrderBy = (order: 'due' | 'score') => {
     state.update((state) => {
-      state.groupby = state.groupby === 'none' ? 'due' : 'none';
+      state.orderby = order;
       return state;
     });
   };
 </script>
 
 <div id="tq-task-controls">
-  <p>Task Controls</p>
-
-  <label>
-    <input
-      type="checkbox"
-      checked={$state.groupby === 'due'}
-      on:change={toggleGroupBy}
-    />
-    Group by due date
-  </label>
+  {#if $state.orderby === 'score'}
+    <button name="Order by due" on:click={() => setOrderBy('due')}>
+      {@html ol}
+    </button>
+  {:else}
+    <button name="Order by task score" on:click={() => setOrderBy('score')}>
+      {@html calendar}
+    </button>
+  {/if}
 </div>
 
 <style>
   #tq-task-controls {
     padding-bottom: 10px;
+    background-color: var(--background-secondary);
   }
 </style>

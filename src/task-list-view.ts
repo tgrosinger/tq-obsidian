@@ -8,7 +8,7 @@ export const TQTaskListViewType = 'tq-task-list-view';
 
 export interface SharedState {
   showCompleted: boolean;
-  groupby: 'due' | 'none';
+  orderby: 'due' | 'score';
 }
 
 export class TaskListView extends ItemView {
@@ -21,7 +21,7 @@ export class TaskListView extends ItemView {
     this.plugin = plugin;
     this.state = writable({
       showCompleted: false,
-      groupby: 'due',
+      orderby: 'due',
     });
 
     this.addAction('redo-glyph', 'Toggle show completed', () => {
