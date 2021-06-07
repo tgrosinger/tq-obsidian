@@ -4,6 +4,7 @@ import { CreateTaskModal } from './modals';
 import { ISettings, settingsWithDefaults } from './settings';
 import { TaskListView, TQTaskListViewType } from './task-list-view';
 import { TaskView, TQTaskViewType } from './task-view';
+import TaskListForDate from './ui/TaskListForDate.svelte';
 import { MarkdownPostProcessorContext, Plugin } from 'obsidian';
 
 // TODO: Add action from calendar plugin to show tasks for a selected day
@@ -92,7 +93,12 @@ export default class TQPlugin extends Plugin {
       }),
     );
 
-    this.registerMarkdownPostProcessor(this.markdownPostProcessor);
+    // this.registerMarkdownPostProcessor(this.markdownPostProcessor);
+
+    this.registerMarkdownCodeBlockProcessor(
+      'tq',
+      this.markdownCodeBlockProcessor,
+    );
 
     /*
     this.registerObsidianProtocolHandler('tq', (params) => {
@@ -107,6 +113,23 @@ export default class TQPlugin extends Plugin {
   private async loadSettings(): Promise<void> {
     this.settings = settingsWithDefaults(await this.loadData());
   }
+
+  private readonly markdownCodeBlockProcessor = (
+    source: string,
+    el: HTMLElement,
+    ctx: MarkdownPostProcessorContext,
+  ): void => {
+    // TODO: Allow adding config options on other lines, such as "show-completed"
+    new TaskListForDate({
+      target: el,
+      props: {
+        plugin: this,
+        date: source.split('\n')[0].trim(),
+        view: null,
+        state: null,
+      },
+    });
+  };
 
   private readonly markdownPostProcessor = (
     el: HTMLElement,

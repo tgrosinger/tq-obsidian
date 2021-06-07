@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Component, App } from 'obsidian';
+  import type { Component } from 'obsidian';
   import type { SharedState } from '../task-list-view';
 
   import type TQPlugin from '../main';
