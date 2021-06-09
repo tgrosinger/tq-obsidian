@@ -1,10 +1,10 @@
-import { FileInterface, TaskCache } from './file-interface';
+import { FileInterface, Task, TaskCache } from './file-interface';
 import { convertLegacyTask } from './legacy-parser';
 import { CreateTaskModal } from './modals';
 import { ISettings, settingsWithDefaults } from './settings';
 import { TaskListView, TQTaskListViewType } from './task-list-view';
 import { TaskView, TQTaskViewType } from './task-view';
-import TaskListForDate from './ui/TaskListForDate.svelte';
+import TaskListFiltered from './ui/TaskListFiltered.svelte';
 import { MarkdownPostProcessorContext, Plugin } from 'obsidian';
 
 // TODO: Add action from calendar plugin to show tasks for a selected day
@@ -139,11 +139,15 @@ export default class TQPlugin extends Plugin {
   ): void => {
     // TODO: Allow adding config options on other lines, such as
     // "show-completed" and "show-overdue"
-    new TaskListForDate({
+
+    const date = source.split('\n')[0].trim();
+    const filters = [(task: Task): boolean => task.due === date];
+
+    new TaskListFiltered({
       target: el,
       props: {
         plugin: this,
-        date: source.split('\n')[0].trim(),
+        filters: filters,
         view: null,
         state: null,
       },

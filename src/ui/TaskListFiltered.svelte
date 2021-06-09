@@ -9,20 +9,19 @@
   import TaskListTask from './TaskListTask.svelte';
   import type { Writable } from 'svelte/store';
 
-  import { filter } from 'lodash';
-  import type { Moment } from 'moment';
+  import { every, filter } from 'lodash';
+  import type { Task } from '../file-interface';
 
   export let plugin: TQPlugin;
-  export let date: Moment;
+  export let filters: ((task: Task) => boolean)[];
   export let view: Component;
   export let state: Writable<SharedState>;
 
   // TODO: Add sort by task score (probably to task controls)
 
-  const dateStr = date.format('YYYY-MM-DD');
   let taskCache = plugin.taskCache;
   let tasks = taskCache.tasks;
-  $: filteredTasks = filter($tasks, (task) => task.due === dateStr);
+  $: filteredTasks = filter($tasks, (t) => every(filters, (f) => f(t)));
 </script>
 
 <div>
