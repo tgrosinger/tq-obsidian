@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { Task } from '../file-interface';
+  import { chevronDown, externalLink } from '../graphics';
+  import { DuePickerModal, RepeatPickerModal } from '../modals';
+  import type TQPlugin from '../main';
+  import type { Moment } from 'moment';
   import { slide } from 'svelte/transition';
   import { Component, MarkdownRenderer } from 'obsidian';
   import { afterUpdate, onMount } from 'svelte';
-  import { chevronDown, externalLink } from '../graphics';
-  import { DuePickerModal, RepeatPickerModal } from '../modals';
-  import type { Moment } from 'moment';
-  import type TQPlugin from '../main';
 
   export let plugin: TQPlugin;
   export let task: Task;

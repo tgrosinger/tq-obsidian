@@ -14,15 +14,15 @@ export interface Task {
   due: string | undefined;
 }
 
-export const CalcTaskScore = (task: Task): number => {
+export const CalcTaskScore = (task: Task): number => 
   // TODO: Calculate task score
   // Factors:
   // - Days overdue (current date - due date)
   // - Days until due (due date - current date)
   // - Priority
   // - Urgency
-  return -1;
-};
+   -1
+;
 
 export type FilePath = string;
 

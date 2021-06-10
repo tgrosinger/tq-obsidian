@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { SharedState } from '../task-list-view';
-  import type { Writable } from 'svelte/store';
   import { calendar, ol } from '../graphics';
+  import type { Writable } from 'svelte/store';
 
   export let state: Writable<SharedState>;
 

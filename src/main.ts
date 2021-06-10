@@ -4,8 +4,9 @@ import { CreateTaskModal } from './modals';
 import { ISettings, settingsWithDefaults } from './settings';
 import { TaskListView, TQTaskListViewType } from './task-list-view';
 import { TaskView, TQTaskViewType } from './task-view';
-import TaskListFiltered from './ui/TaskListFiltered.svelte';
+import TasksUI from './ui/TasksUI.svelte';
 import { MarkdownPostProcessorContext, Plugin } from 'obsidian';
+import { writable } from 'svelte/store';
 
 // TODO: Add action from calendar plugin to show tasks for a selected day
 
@@ -143,13 +144,17 @@ export default class TQPlugin extends Plugin {
     const date = source.split('\n')[0].trim();
     const filters = [(task: Task): boolean => task.due === date];
 
-    new TaskListFiltered({
+    new TasksUI({
       target: el,
       props: {
         plugin: this,
-        filters: filters,
+        filters,
         view: null,
-        state: null,
+        state: writable({
+          showCompleted: false,
+          orderby: 'score',
+        }),
+        hideControls: true,
       },
     });
   };
