@@ -14,15 +14,14 @@ export interface Task {
   due: string | undefined;
 }
 
-export const CalcTaskScore = (task: Task): number => 
+export const CalcTaskScore = (task: Task): number =>
   // TODO: Calculate task score
   // Factors:
   // - Days overdue (current date - due date)
   // - Days until due (due date - current date)
   // - Priority
   // - Urgency
-   -1
-;
+  -1;
 
 export type FilePath = string;
 
@@ -232,11 +231,12 @@ export class FileInterface {
     description: string,
     due: string,
     repeat: string,
+    tags: string[],
   ): Promise<void> => {
     const tasksDir = this.plugin.settings.TasksDir;
     const newHash = this.createTaskBlockHash();
     const fileName = `${tasksDir}/${newHash}.md`;
-    const data = this.formatNewTask(description, due, repeat);
+    const data = this.formatNewTask(description, due, repeat, tags);
 
     console.debug('tq: Creating a new task in ' + fileName);
     console.debug(data);
@@ -251,6 +251,7 @@ export class FileInterface {
     description: string,
     due: string,
     repeat: string,
+    tags: string[],
   ): string => {
     const frontMatter = [];
     if (due && due !== '') {
@@ -258,6 +259,9 @@ export class FileInterface {
     }
     if (repeat && repeat !== '') {
       frontMatter.push('repeat: ' + repeat);
+    }
+    if (tags && tags.length > 0 && tags[0].length > 0) {
+      frontMatter.push(`tags: [ ${tags.join(', ')} ]`);
     }
 
     const contents = [];

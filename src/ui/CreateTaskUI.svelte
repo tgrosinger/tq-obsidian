@@ -2,9 +2,17 @@
   import RepeatPicker from './RepeatPicker.svelte';
   import DuePicker from './DuePicker.svelte';
   import type { Moment } from 'moment';
+  import type { App } from 'obsidian';
+  import TextSuggest from './TextSuggest.svelte';
 
   export let close: () => void;
-  export let store: (description: string, due: string, repeat: string) => void;
+  export let store: (
+    description: string,
+    due: string,
+    repeat: string,
+    tags: string[],
+  ) => void;
+  export let app: App;
 
   const taskPlaceholders = [
     'Feed the chickens',
@@ -14,14 +22,19 @@
     'Water the orchard',
   ];
 
+  const tagCache = Object.keys((app.metadataCache as any).getTags());
   let description = '';
   let repeats = false;
   let repeatConfig = '';
   let due = '';
   let showDuePicker = false;
+  let tags = '';
 
   const save = () => {
-    store(description, due, repeats ? repeatConfig : '');
+    const cleanedTags = tags
+      .split(',')
+      .map((tag) => tag.trim().replace('#', ''));
+    store(description, due, repeats ? repeatConfig : '', cleanedTags);
     close();
   };
 
@@ -64,6 +77,10 @@
   />
 </div>
 <RepeatPicker bind:repeats bind:repeatConfig close={null} set={null} />
+<div>
+  <label for="tags">Tags</label>
+  <TextSuggest {app} bind:value={tags} suggestions={tagCache} />
+</div>
 
 <button on:click={save}>Save</button>
 

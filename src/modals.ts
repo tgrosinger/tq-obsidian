@@ -21,6 +21,7 @@ export class CreateTaskModal extends Modal {
       props: {
         close: () => this.close(),
         store: this.plugin.fileInterface.storeNewTask,
+        app: this.app,
       },
     });
   };

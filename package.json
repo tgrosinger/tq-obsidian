@@ -45,6 +45,7 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
+    "@popperjs/core": "2.9.2",
     "js-yaml": "4.1.0",
     "lodash": "4.17.21",
     "neverthrow": "4.2.1",
