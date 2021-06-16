@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SharedState } from '../task-list-view';
+  import { SharedState, filtersFromState } from '../state';
   import type TQPlugin from '../main';
   import { CalcTaskScore, Task } from '../file-interface';
   import TaskListSorted from './TaskListSorted.svelte';
@@ -12,17 +12,9 @@
   export let plugin: TQPlugin;
   export let view: Component;
   export let state: Writable<SharedState>;
-  export let filters: ((task: Task) => boolean)[] = [];
   export let hideControls = false;
 
-  const filterCompleted = (t: Task) => !t.checked;
-  let allFilters: ((task: Task) => boolean)[];
-  $: {
-    allFilters = filters.slice();
-    if (!$state.showCompleted) {
-      allFilters.push(filterCompleted);
-    }
-  }
+  $: allFilters = filtersFromState($state);
 
   const sorterByScore = (t: Task): any => CalcTaskScore(t);
   const grouperByDate = (t: Task): any => t.due;
@@ -38,7 +30,7 @@
     <TaskListControls {state} />
   {/if}
 
-  {#if $state.orderby === 'due'}
+  {#if $state.sort === 'due'}
     <TaskListGrouped
       {plugin}
       {view}
@@ -46,7 +38,7 @@
       keySorter={keySorterByDate}
       tasks={filteredTasks}
     />
-  {:else if $state.orderby === 'score'}
+  {:else if $state.sort === 'score'}
     <TaskListSorted
       {plugin}
       {view}

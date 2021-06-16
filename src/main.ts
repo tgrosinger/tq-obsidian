@@ -7,6 +7,7 @@ import { TaskView, TQTaskViewType } from './task-view';
 import TasksUI from './ui/TasksUI.svelte';
 import { MarkdownPostProcessorContext, Plugin } from 'obsidian';
 import { writable } from 'svelte/store';
+import { stateFromConfig, stateWithDefaults } from './state';
 
 // TODO: Add action from calendar plugin to show tasks for a selected day
 
@@ -138,22 +139,58 @@ export default class TQPlugin extends Plugin {
     el: HTMLElement,
     ctx: MarkdownPostProcessorContext,
   ): void => {
-    // TODO: Allow adding config options on other lines, such as
-    // "show-completed" and "show-overdue"
-
-    const date = source.split('\n')[0].trim();
-    const filters = [(task: Task): boolean => task.due === date];
+    /**
+     * Schema:
+     *
+     * select-day: <date>
+     * select-week: <date>
+     * select-tags: string | string[] ([])
+     * overdue: bool (false)
+     * completed: bool (true)
+     * due: bool (true)
+     * no-due: bool (false)
+     * sort: "score" | "due" | "" ("score")
+     * group" "due" | "completed" | "" ("")
+     *
+     *
+     * Example configs:
+     *
+     * select-day: 2021-06-12
+     * overdue: true
+     * completed: true
+     * sort: score
+     * tags: [ work, home ]
+     *
+     *
+     * select-day: 2021-06-12
+     * due: false
+     * overdue: true
+     * sort: score
+     * tags: [ work, home ]
+     *
+     *
+     * due: false
+     * no-due: true
+     * tags: work
+     *
+     *
+     * select-week: 2021-06-13
+     * completed: false
+     * group: due
+     *
+     *
+     * select-day: 2021-06-12
+     * completed: true
+     * group: completed
+     *
+     */
 
     new TasksUI({
       target: el,
       props: {
         plugin: this,
-        filters,
         view: null,
-        state: writable({
-          showCompleted: false,
-          orderby: 'score',
-        }),
+        state: writable(stateFromConfig(source.split('\n'))),
         hideControls: true,
       },
     });

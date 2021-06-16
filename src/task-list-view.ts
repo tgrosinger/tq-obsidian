@@ -3,13 +3,9 @@ import { CreateTaskModal } from './modals';
 import TasksUI from './ui/TasksUI.svelte';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import { Writable, writable } from 'svelte/store';
+import { SharedState, stateWithDefaults } from './state';
 
 export const TQTaskListViewType = 'tq-task-list-view';
-
-export interface SharedState {
-  showCompleted: boolean;
-  orderby: 'due' | 'score';
-}
 
 export class TaskListView extends ItemView {
   private readonly plugin: TQPlugin;
@@ -19,14 +15,16 @@ export class TaskListView extends ItemView {
     super(leaf);
 
     this.plugin = plugin;
-    this.state = writable({
-      showCompleted: false,
-      orderby: 'due',
-    });
+    this.state = writable(
+      stateWithDefaults(
+        // TODO: Change default sort to 'score'
+        { completed: false, due: true, noDue: true, sort: 'due' },
+      ),
+    );
 
     this.addAction('redo-glyph', 'Toggle show completed', () => {
       this.state.update((state) => {
-        state.showCompleted = !state.showCompleted;
+        state.completed = !state.completed;
         return state;
       });
     });

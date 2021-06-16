@@ -26,7 +26,7 @@ export const convertLegacyTask = (
   const fileDate = window.moment(activeLeaf.view.file.basename, true);
   const due = fileDate.isValid() ? fileDate.format('YYYY-MM-DD') : undefined;
 
-  fileInterface.storeNewTask(parts.description, due, parts.repeat);
+  fileInterface.storeNewTask(parts.description, due, parts.repeat, []);
 };
 
 const parseLegacyTaskLine = (
