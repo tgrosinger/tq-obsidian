@@ -25,12 +25,10 @@ export interface SharedState {
   selectWeek: string | undefined;
 }
 
-export const stateWithDefaults = (props: Partial<SharedState>): SharedState => {
-  return {
+export const stateWithDefaults = (props: Partial<SharedState>): SharedState => ({
     ...SharedStateDefaults,
     ...props,
-  };
-};
+  });
 
 export const stateFromConfig = (lines: string[]): SharedState => {
   const state = stateWithDefaults({});

@@ -1,13 +1,13 @@
-import { Frontmatter } from '../src/frontmatter';
 import type { Task } from '../src/file-interface';
+import { Frontmatter } from '../src/frontmatter';
 import {
   filtersFromState,
   SharedState,
   stateFromConfig,
   stateWithDefaults,
 } from '../src/state';
-import moment from 'moment';
 import { every, filter } from 'lodash';
+import moment from 'moment';
 
 const makeTask = (lineIdx: number, md: string[]): Task => {
   const frontmatter = new Frontmatter(md);
@@ -15,26 +15,26 @@ const makeTask = (lineIdx: number, md: string[]): Task => {
   return {
     file: undefined,
     md: md.join('\n'),
-    frontmatter: frontmatter,
+    frontmatter,
     line: md[lineIdx].replace(/- \[[x ]\]/, ''),
     checked: md[lineIdx].startsWith('- [x]'),
     due: due ? moment(due).endOf('day').format('YYYY-MM-DD') : undefined,
   };
 };
 
-const task1 = makeTask(0, [`- [ ] no due here`]);
-const task2 = makeTask(0, [`- [x] completed no due here`]);
+const task1 = makeTask(0, ['- [ ] no due here']);
+const task2 = makeTask(0, ['- [x] completed no due here']);
 const task3 = makeTask(3, [
-  `---`,
+  '---',
   'due: "2021-06-06"',
-  `---`,
-  `- [x] completed with due`,
+  '---',
+  '- [x] completed with due',
 ]);
 const task4 = makeTask(3, [
-  `---`,
+  '---',
   'due: "2021-06-06"',
-  `---`,
-  `- [ ] incomplete with due`,
+  '---',
+  '- [ ] incomplete with due',
 ]);
 
 const applyFilters = (tasks: Task[], config: string[]): Task[] => {

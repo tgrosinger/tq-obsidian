@@ -1,9 +1,9 @@
 import type TQPlugin from './main';
 import { CreateTaskModal } from './modals';
+import { SharedState, stateWithDefaults } from './state';
 import TasksUI from './ui/TasksUI.svelte';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import { Writable, writable } from 'svelte/store';
-import { SharedState, stateWithDefaults } from './state';
 
 export const TQTaskListViewType = 'tq-task-list-view';
 

@@ -1,7 +1,7 @@
 {
   "name": "tq-obsidian",
   "version": "0.0.1",
-  "description": "Task management - designed for DataView",
+  "description": "File-based Task Management",
   "main": "main.js",
   "scripts": {
     "test": "jest",
