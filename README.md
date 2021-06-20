@@ -29,3 +29,15 @@ my way through one of the following methods:
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/tgrosinger?style=social)](https://github.com/sponsors/tgrosinger)
 [![Paypal](https://img.shields.io/badge/paypal-tgrosinger-yellow?style=social&logo=paypal)](https://paypal.me/tgrosinger)
 [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="BuyMeACoffee" width="100">](https://www.buymeacoffee.com/tgrosinger)
+
+## Screenshots
+
+So far the majority of my effort has been focused on functionality, so the UI has some very rough edges. It will hopefully improve over time!
+
+![task list](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/task-list.png)
+
+![create-task](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/create-task.png)
+
+![edit task repeat](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/edit-repeat.png)
+
+![task details](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/expanded-task.png)
