@@ -5,7 +5,8 @@
   import type TQPlugin from '../main';
   import type { Moment } from 'moment';
   import { slide } from 'svelte/transition';
-  import { Component, MarkdownRenderer } from 'obsidian';
+  import type { Component } from 'obsidian';
+  import { MarkdownRenderer } from 'obsidian';
   import { afterUpdate, onMount } from 'svelte';
 
   export let plugin: TQPlugin;

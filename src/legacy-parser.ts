@@ -1,20 +1,16 @@
 import type { FileInterface } from './file-interface';
-import { MarkdownView, WorkspaceLeaf } from 'obsidian';
+import type { MarkdownView } from 'obsidian';
 
 const taskRe = /\s*- \[[ xX>\-]\]/;
 const repeatScheduleRe = /[;📅]\s*([-a-zA-Z0-9 =;:\,]+)/;
 
 export const convertLegacyTask = (
   checking: boolean,
-  activeLeaf: WorkspaceLeaf,
+  activeLeaf: MarkdownView,
   fileInterface: FileInterface,
 ): boolean | void => {
-  if (!(activeLeaf.view instanceof MarkdownView)) {
-    return false;
-  }
-
-  const currentLineNum = activeLeaf.view.editor.getCursor().line;
-  const currentLine = activeLeaf.view.editor.getLine(currentLineNum);
+  const currentLineNum = activeLeaf.editor.getCursor().line;
+  const currentLine = activeLeaf.editor.getLine(currentLineNum);
   const parts = parseLegacyTaskLine(currentLine);
 
   if (!parts) {
@@ -23,7 +19,7 @@ export const convertLegacyTask = (
     return true;
   }
 
-  const fileDate = window.moment(activeLeaf.view.file.basename, true);
+  const fileDate = window.moment(activeLeaf.file.basename, true);
   const due = fileDate.isValid() ? fileDate.format('YYYY-MM-DD') : undefined;
 
   fileInterface.storeNewTask(parts.description, due, parts.repeat, []);

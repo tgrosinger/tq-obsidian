@@ -6,7 +6,7 @@ import { stateFromConfig, stateWithDefaults } from './state';
 import { TaskListView, TQTaskListViewType } from './task-list-view';
 import { TaskView, TQTaskViewType } from './task-view';
 import TasksUI from './ui/TasksUI.svelte';
-import { MarkdownPostProcessorContext, Plugin } from 'obsidian';
+import { MarkdownPostProcessorContext, MarkdownView, Plugin } from 'obsidian';
 import { writable } from 'svelte/store';
 
 // TODO: Add action from calendar plugin to show tasks for a selected day
@@ -16,9 +16,6 @@ export default class TQPlugin extends Plugin {
   public fileInterface: FileInterface;
   public taskCache: TaskCache;
 
-  private view: TaskView;
-  private tq: TaskListView;
-
   public async onload(): Promise<void> {
     console.log('tq: Loading plugin v' + this.manifest.version);
 
@@ -27,18 +24,15 @@ export default class TQPlugin extends Plugin {
     this.fileInterface = new FileInterface(this, this.app);
     this.taskCache = new TaskCache(this, this.app);
 
-    this.registerView(
-      TQTaskViewType,
-      (leaf) => (this.view = new TaskView(leaf, this)),
-    );
+    this.registerView(TQTaskViewType, (leaf) => new TaskView(leaf, this));
     this.registerView(
       TQTaskListViewType,
-      (leaf) => (this.tq = new TaskListView(leaf, this)),
+      (leaf) => new TaskListView(leaf, this),
     );
 
     this.addRibbonIcon('checkbox-glyph', 'tq', () => {
-      // TODO: Open in new pane if current pane is pinned
-      this.app.workspace.activeLeaf.setViewState({
+      const activeLeaf = this.app.workspace.getLeaf(false);
+      activeLeaf.setViewState({
         type: TQTaskListViewType,
         state: {},
       });
@@ -57,7 +51,10 @@ export default class TQPlugin extends Plugin {
       id: 'convert-task',
       name: 'Convert Task',
       checkCallback: (checking: boolean): boolean | void => {
-        const activeLeaf = this.app.workspace.activeLeaf;
+        const activeLeaf = this.app.workspace.getActiveViewOfType(MarkdownView);
+        if (!activeLeaf) {
+          return false;
+        }
         return convertLegacyTask(checking, activeLeaf, this.fileInterface);
       },
     });
