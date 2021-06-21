@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest",
     "test-watch": "jest --watchAll",
-    "dev": "rollup --config rollup.config.js -w",
-    "build": "rollup --config rollup.config.js",
+    "dev": "rollup --config rollup.config.js",
+    "build": "rollup --config rollup.config.js --environment BUILD:production",
     "prettier": "prettier --write 'src/**/*.+(ts|tsx|json|html|css)'",
     "eslint": "eslint . --ext .ts,.tsx --fix"
   },
