@@ -1,4 +1,5 @@
 import type { Task } from './file-interface';
+import { intersection } from 'lodash';
 
 const SharedStateDefaults: SharedState = {
   overdue: true,
@@ -25,10 +26,12 @@ export interface SharedState {
   selectWeek: string | undefined;
 }
 
-export const stateWithDefaults = (props: Partial<SharedState>): SharedState => ({
-    ...SharedStateDefaults,
-    ...props,
-  });
+export const stateWithDefaults = (
+  props: Partial<SharedState>,
+): SharedState => ({
+  ...SharedStateDefaults,
+  ...props,
+});
 
 export const stateFromConfig = (lines: string[]): SharedState => {
   const state = stateWithDefaults({});
@@ -83,8 +86,15 @@ export const stateFromConfig = (lines: string[]): SharedState => {
         }
         break;
       case 'select-tags':
-        // TODO: Support specifying a list of tags
-        state.selectTags = [parts[1]];
+        if (parts[1].match(/^\[.*\]$/)) {
+          state.selectTags = parts[1]
+            .replace(/^\[/, '')
+            .replace(/\]$/, '')
+            .split(',')
+            .map((t) => t.trim());
+        } else {
+          state.selectTags = [parts[1]];
+        }
         break;
       case 'select-day':
         state.selectDay = parts[1];
@@ -99,7 +109,6 @@ export const stateFromConfig = (lines: string[]): SharedState => {
     }
   });
 
-  console.log(state);
   return state;
 };
 
@@ -110,36 +119,36 @@ export const filtersFromState = (state: SharedState): Filter[] => {
   // Cheap and bulky comparisons first
 
   if (!state.due) {
-    console.log('adding filter for due');
-    // return false if due !== ''
-    console.log('adding filter for due');
     filters.push((task: Task) => !(task.due !== ''));
   }
   if (!state.noDue) {
-    console.log('adding filter for nodue');
-    // return false if due === ''
-    console.log('adding filter for nodue');
     filters.push((task: Task) => task.due !== '');
   }
   if (state.selectDay && state.selectDay.length > 0) {
-    console.log('adding filter for selectday');
     filters.push((task: Task) => task.due === state.selectDay);
   }
 
   if (!state.completed) {
-    console.log('adding filter for completed');
     filters.push((task: Task) => !task.checked);
   }
 
   // More expensive, targeted comparisons last
 
   if (state.selectTags && state.selectTags.length > 0) {
-    console.log('adding filter for tags');
-    filters.push((task: Task) => true); // TODO
+    filters.push((task: Task) => {
+      let tags = task.frontmatter.get('tags');
+      if (!tags) {
+        return false;
+      }
+      if (!Array.isArray(tags)) {
+        tags = [tags];
+      }
+
+      return intersection(tags, state.selectTags).length > 0;
+    });
   }
 
   if (state.selectWeek && state.selectWeek.length > 0) {
-    console.log('adding filter for selectweek');
     const selectedWeek = window.moment(state.selectWeek).startOf('week');
 
     filters.push((task: Task) => {
@@ -149,7 +158,6 @@ export const filtersFromState = (state: SharedState): Filter[] => {
   }
 
   if (!state.overdue) {
-    console.log('adding filter for overdue');
     // TODO: Overdue should be in relation to the selectDay or selectWeek if set
     filters.push((task: Task) => window.moment(task.due) < window.moment());
   }

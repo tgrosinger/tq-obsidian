@@ -1,9 +1,9 @@
 import { Frontmatter, setCompleted, setDueDate } from './frontmatter';
 import type TQPlugin from './main';
+import type { Moment } from 'moment';
 import { err, ok, Result } from 'neverthrow';
 import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
 import { Writable, writable } from 'svelte/store';
-import type { Moment } from 'moment';
 
 export interface Task {
   file: TFile;

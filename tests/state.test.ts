@@ -1,11 +1,6 @@
 import type { Task } from '../src/file-interface';
 import { Frontmatter } from '../src/frontmatter';
-import {
-  filtersFromState,
-  SharedState,
-  stateFromConfig,
-  stateWithDefaults,
-} from '../src/state';
+import { filtersFromState, stateFromConfig } from '../src/state';
 import { every, filter } from 'lodash';
 import moment from 'moment';
 
@@ -24,15 +19,17 @@ const makeTask = (lineIdx: number, md: string[]): Task => {
 
 const task1 = makeTask(0, ['- [ ] no due here']);
 const task2 = makeTask(0, ['- [x] completed no due here']);
-const task3 = makeTask(3, [
+const task3 = makeTask(4, [
   '---',
   'due: "2021-06-06"',
+  'tags: work',
   '---',
   '- [x] completed with due',
 ]);
-const task4 = makeTask(3, [
+const task4 = makeTask(4, [
   '---',
   'due: "2021-06-06"',
+  'tags: [home]',
   '---',
   '- [ ] incomplete with due',
 ]);
@@ -72,5 +69,45 @@ describe('when filtering tasks', () => {
       const filtered = applyFilters([task1, task2, task3, task4], config);
       expect(filtered).toEqual([task3, task4]);
     });
+    test('with a tag', () => {
+      const config = [
+        'select-day: 2021-06-06',
+        'completed: true',
+        'select-tags: work',
+      ];
+      const filtered = applyFilters([task1, task2, task3, task4], config);
+      expect(filtered).toEqual([task3]);
+    });
+    test('with two tags', () => {
+      const config = [
+        'select-day: 2021-06-06',
+        'completed: true',
+        'select-tags: [work, home]',
+      ];
+      const filtered = applyFilters([task1, task2, task3, task4], config);
+      expect(filtered).toEqual([task3, task4]);
+    });
+  });
+  describe('when only tasks with no due date', () => {
+    test('all', () => {
+      // TODO
+    });
+    test('for a tag', () => {
+      // TODO
+    });
+  });
+  describe('when only overdue', () => {
+    test('all overdue', () => {
+      // TODO
+    });
+    test('with a tag', () => {
+      // TODO
+    });
+    test('for a specific week', () => {
+      // TODO
+    });
+  });
+  describe('when filtering to a single week', () => {
+    // TODO
   });
 });
