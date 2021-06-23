@@ -67,7 +67,7 @@ You may use Obsidian links to interact with tq from within or outside of the app
 ### Creating Tasks
 
 ```
-obsidian://tq?action=create&due=2021-06-01&task=Water%20the%20garden
+obsidian://tq?create&due=2021-06-01&task=Water%20the%20garden
 ```
 
 Properties must be URL escaped.
@@ -77,7 +77,8 @@ Properties must be URL escaped.
 | action   | "create" | Indicate a task is being created     |
 | due      | Date     | An optional due date for the task    |
 | task     | String   | The URL escaped contents of the task |
-| repeat   | String   | The repeat configuration             |
+| repeat   | String   | The URL escaped repeat configuration |
+| tags     | String   | Comma separated list of tags         |
 
 ### Using iOS Shortcuts
 

@@ -6,7 +6,12 @@ import { stateFromConfig, stateWithDefaults } from './state';
 import { TaskListView, TQTaskListViewType } from './task-list-view';
 import { TaskView, TQTaskViewType } from './task-view';
 import TasksUI from './ui/TasksUI.svelte';
-import { MarkdownPostProcessorContext, MarkdownView, Plugin } from 'obsidian';
+import {
+  MarkdownPostProcessorContext,
+  MarkdownView,
+  Notice,
+  Plugin,
+} from 'obsidian';
 import { writable } from 'svelte/store';
 
 // TODO: Add action from calendar plugin to show tasks for a selected day
@@ -119,14 +124,27 @@ export default class TQPlugin extends Plugin {
       );
     }
 
-    /*
-    this.registerObsidianProtocolHandler('tq', (params) => {
-      this.app.workspace.activeLeaf.setViewState({
-        type: TQTaskViewType,
-        state: { file: params.file },
-      });
+    this.registerObsidianProtocolHandler('tq', async (params) => {
+      if (!params.create) {
+        console.debug('tq: Unknown URL request');
+        console.debug(params);
+        return;
+      }
+
+      if (!params.task) {
+        new Notice('Cannot create a task with no "task" property');
+        return;
+      }
+
+      await this.fileInterface.storeNewTask(
+        params.task,
+        params.due,
+        params.repeat,
+        params.tags ? params.tags.split(',') : [],
+      );
+
+      new Notice('Task created');
     });
-    */
   }
 
   private async loadSettings(): Promise<void> {
@@ -138,52 +156,6 @@ export default class TQPlugin extends Plugin {
     el: HTMLElement,
     ctx: MarkdownPostProcessorContext,
   ): void => {
-    /**
-     * Schema:
-     *
-     * select-day: <date>
-     * select-week: <date>
-     * select-tags: string | string[] ([])
-     * overdue: bool (false)
-     * completed: bool (true)
-     * due: bool (true)
-     * no-due: bool (false)
-     * sort: "score" | "due" | "" ("score")
-     * group" "due" | "completed" | "" ("")
-     *
-     *
-     * Example configs:
-     *
-     * select-day: 2021-06-12
-     * overdue: true
-     * completed: true
-     * sort: score
-     * tags: [ work, home ]
-     *
-     *
-     * select-day: 2021-06-12
-     * due: false
-     * overdue: true
-     * sort: score
-     * tags: [ work, home ]
-     *
-     *
-     * due: false
-     * no-due: true
-     * tags: work
-     *
-     *
-     * select-week: 2021-06-13
-     * completed: false
-     * group: due
-     *
-     *
-     * select-day: 2021-06-12
-     * completed: true
-     * group: completed
-     *
-     */
-
     new TasksUI({
       target: el,
       props: {
