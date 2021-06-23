@@ -86,7 +86,7 @@ The URL above can be used from iOS Shortcuts to create a quick way to add tasks
 from outside of Obsidian. Note however that if you are using Obsidian Sync, your
 task may not be synced unless you leave Obsidian open long enough to complete.
 
-Example coming soon.
+[Example Shortcut](https://www.icloud.com/shortcuts/ea7991d02bc24922ace9b49c670a1397)
 
 ## Pricing
 
