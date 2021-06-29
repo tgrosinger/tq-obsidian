@@ -33,6 +33,12 @@ const task4 = makeTask(4, [
   '---',
   '- [ ] incomplete with due',
 ]);
+const task5 = makeTask(3, [
+  '---',
+  'tags: [work]',
+  '---',
+  '- [ ] incomplete with tag',
+]);
 
 const applyFilters = (tasks: Task[], config: string[]): Task[] => {
   const state = stateFromConfig(config);
@@ -90,10 +96,17 @@ describe('when filtering tasks', () => {
   });
   describe('when only tasks with no due date', () => {
     test('all', () => {
-      // TODO
+      const config = ['no-due: true', 'due: false'];
+      const filtered = applyFilters([task1, task2, task3, task4], config);
+      expect(filtered).toEqual([task1, task2]);
     });
     test('for a tag', () => {
-      // TODO
+      const config = ['no-due: true', 'due: false', 'select-tags: work'];
+      const filtered = applyFilters(
+        [task1, task2, task3, task4, task5],
+        config,
+      );
+      expect(filtered).toEqual([task5]);
     });
   });
   describe('when only overdue', () => {

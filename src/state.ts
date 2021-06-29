@@ -4,7 +4,7 @@ import { intersection } from 'lodash';
 const SharedStateDefaults: SharedState = {
   overdue: true,
   due: true,
-  noDue: false,
+  noDue: true,
   completed: true,
   sort: 'score',
   group: undefined,
@@ -118,12 +118,18 @@ export const filtersFromState = (state: SharedState): Filter[] => {
 
   // Cheap and bulky comparisons first
 
-  if (!state.due) {
-    filters.push((task: Task) => !(task.due !== ''));
+  if (state.due && state.noDue) {
+    // Keep all
+  } else if (state.due) {
+    // Filter tasks with no due property
+    filters.push((task: Task) => task.due !== undefined);
+  } else if (state.noDue) {
+    // Filter tasks with a due property
+    filters.push((task: Task) => task.due === undefined);
+  } else {
+    // Filter all (probably an error)
   }
-  if (!state.noDue) {
-    filters.push((task: Task) => task.due !== '');
-  }
+
   if (state.selectDay && state.selectDay.length > 0) {
     filters.push((task: Task) => task.due === state.selectDay);
   }
@@ -157,8 +163,12 @@ export const filtersFromState = (state: SharedState): Filter[] => {
     });
   }
 
-  if (!state.overdue) {
-    // TODO: Overdue should be in relation to the selectDay or selectWeek if set
+  if (!state.overdue && state.selectWeek) {
+    // TODO: Filter tasks that are overdue compared to the selectedWeek
+  } else if (!state.overdue && state.selectDay) {
+    // TODO: Filter tasks that are overdue compared to the selectedDay
+  } else {
+    // Filter task that are overdue compared to today
     filters.push((task: Task) => window.moment(task.due) < window.moment());
   }
 

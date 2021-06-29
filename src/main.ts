@@ -1,8 +1,8 @@
-import { FileInterface, Task, TaskCache } from './file-interface';
+import { FileInterface, TaskCache } from './file-interface';
 import { convertLegacyTask } from './legacy-parser';
 import { CreateTaskModal } from './modals';
 import { ISettings, settingsWithDefaults } from './settings';
-import { stateFromConfig, stateWithDefaults } from './state';
+import { stateFromConfig } from './state';
 import { TaskListView, TQTaskListViewType } from './task-list-view';
 import { TaskView, TQTaskViewType } from './task-view';
 import TasksUI from './ui/TasksUI.svelte';
@@ -117,12 +117,10 @@ export default class TQPlugin extends Plugin {
 
     // this.registerMarkdownPostProcessor(this.markdownPostProcessor);
 
-    if (this.settings.EnableEmbed) {
-      this.registerMarkdownCodeBlockProcessor(
-        'tq',
-        this.markdownCodeBlockProcessor,
-      );
-    }
+    this.registerMarkdownCodeBlockProcessor(
+      'tq',
+      this.markdownCodeBlockProcessor,
+    );
 
     this.registerObsidianProtocolHandler('tq', async (params) => {
       if (!params.create) {
