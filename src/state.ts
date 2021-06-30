@@ -2,7 +2,7 @@ import type { Task } from './file-interface';
 import { intersection } from 'lodash';
 
 const SharedStateDefaults: SharedState = {
-  overdue: true,
+  overdue: false,
   due: true,
   noDue: true,
   completed: true,
@@ -131,7 +131,20 @@ export const filtersFromState = (state: SharedState): Filter[] => {
   }
 
   if (state.selectDay && state.selectDay.length > 0) {
-    filters.push((task: Task) => task.due === state.selectDay);
+    // Filtering select-day does not remove tasks which do not have a due date.
+    if (state.overdue) {
+      const selectedDay = window.moment(state.selectDay);
+      filters.push(
+        (task: Task) =>
+          task.due === undefined ||
+          task.due === state.selectDay ||
+          window.moment(task.due).isBefore(selectedDay),
+      );
+    } else {
+      filters.push(
+        (task: Task) => task.due === undefined || task.due === state.selectDay,
+      );
+    }
   }
 
   if (!state.completed) {
@@ -157,19 +170,24 @@ export const filtersFromState = (state: SharedState): Filter[] => {
   if (state.selectWeek && state.selectWeek.length > 0) {
     const selectedWeek = window.moment(state.selectWeek).startOf('week');
 
-    filters.push((task: Task) => {
-      const due = window.moment(task.due);
-      return due >= selectedWeek && due <= selectedWeek.add(1, 'week');
-    });
-  }
-
-  if (!state.overdue && state.selectWeek) {
-    // TODO: Filter tasks that are overdue compared to the selectedWeek
-  } else if (!state.overdue && state.selectDay) {
-    // TODO: Filter tasks that are overdue compared to the selectedDay
-  } else {
-    // Filter task that are overdue compared to today
-    filters.push((task: Task) => window.moment(task.due) < window.moment());
+    // Filtering select-week does not remove tasks which do not have a due date.
+    if (state.overdue) {
+      filters.push((task: Task) => {
+        if (task.due === undefined) {
+          return true;
+        }
+        const due = window.moment(task.due);
+        return due <= selectedWeek.add(1, 'week');
+      });
+    } else {
+      filters.push((task: Task) => {
+        if (task.due === undefined) {
+          return true;
+        }
+        const due = window.moment(task.due);
+        return due >= selectedWeek && due <= selectedWeek.add(1, 'week');
+      });
+    }
   }
 
   return filters;

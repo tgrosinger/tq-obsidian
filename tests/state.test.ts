@@ -39,12 +39,22 @@ const task5 = makeTask(3, [
   '---',
   '- [ ] incomplete with tag',
 ]);
+const task6 = makeTask(3, [
+  '---',
+  'due: "2021-06-15"',
+  '---',
+  '- [ ] incomplete with later due',
+]);
 
 const applyFilters = (tasks: Task[], config: string[]): Task[] => {
   const state = stateFromConfig(config);
   const allFilters = filtersFromState(state);
   return filter(tasks, (t) => every(allFilters, (f) => f(t)));
 };
+
+beforeAll(() => {
+  window.moment = moment;
+});
 
 describe('when filtering tasks', () => {
   describe('when applying a single filter', () => {
@@ -62,18 +72,21 @@ describe('when filtering tasks', () => {
   describe('when filtering to a single day', () => {
     test('basic selectDay', () => {
       const config = ['select-day: 2021-06-06'];
-      const filtered = applyFilters([task1, task2, task3, task4], config);
-      expect(filtered).toEqual([task3, task4]);
+      const filtered = applyFilters(
+        [task1, task2, task3, task4, task6],
+        config,
+      );
+      expect(filtered).toEqual([task1, task2, task3, task4]);
     });
     test('with only incomplete', () => {
       const config = ['select-day: 2021-06-06', 'completed: false'];
       const filtered = applyFilters([task1, task2, task3, task4], config);
-      expect(filtered).toEqual([task4]);
+      expect(filtered).toEqual([task1, task4]);
     });
     test('with complete and incomplete', () => {
       const config = ['select-day: 2021-06-06', 'completed: true'];
       const filtered = applyFilters([task1, task2, task3, task4], config);
-      expect(filtered).toEqual([task3, task4]);
+      expect(filtered).toEqual([task1, task2, task3, task4]);
     });
     test('with a tag', () => {
       const config = [
@@ -93,6 +106,11 @@ describe('when filtering tasks', () => {
       const filtered = applyFilters([task1, task2, task3, task4], config);
       expect(filtered).toEqual([task3, task4]);
     });
+    test('with only due', () => {
+      const config = ['select-day: 2021-06-06', 'no-due: false'];
+      const filtered = applyFilters([task1, task2, task3, task4], config);
+      expect(filtered).toEqual([task3, task4]);
+    });
   });
   describe('when only tasks with no due date', () => {
     test('all', () => {
@@ -109,18 +127,40 @@ describe('when filtering tasks', () => {
       expect(filtered).toEqual([task5]);
     });
   });
-  describe('when only overdue', () => {
-    test('all overdue', () => {
-      // TODO
-    });
-    test('with a tag', () => {
-      // TODO
+  describe('including overdue', () => {
+    test('for a specific day', () => {
+      const config = ['select-day: 2021-06-15', 'overdue: true'];
+      const filtered = applyFilters(
+        [task1, task2, task3, task4, task5, task6],
+        config,
+      );
+      expect(filtered).toEqual([task1, task2, task3, task4, task5, task6]);
     });
     test('for a specific week', () => {
-      // TODO
+      const config = ['select-week: 2021-06-14', 'overdue: true'];
+      const filtered = applyFilters(
+        [task1, task2, task3, task4, task5, task6],
+        config,
+      );
+      expect(filtered).toEqual([task1, task2, task3, task4, task5, task6]);
     });
   });
   describe('when filtering to a single week', () => {
-    // TODO
+    test('basic select-week', () => {
+      const config = ['select-week: 2021-06-14'];
+      const filtered = applyFilters(
+        [task1, task2, task3, task4, task5],
+        config,
+      );
+      expect(filtered).toEqual([task1, task2, task5]);
+    });
+    test('with only due', () => {
+      const config = ['select-week: 2021-06-14', 'no-due: false'];
+      const filtered = applyFilters(
+        [task1, task2, task3, task4, task5, task6],
+        config,
+      );
+      expect(filtered).toEqual([task6]);
+    });
   });
 });

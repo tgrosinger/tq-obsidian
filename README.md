@@ -53,10 +53,10 @@ Or for a more complicated example:
 | `select-day`  | Date                   | Include only tasks due this day                              | All tasks |
 | `select-week` | Date                   | Include only tasks due this week                             | All tasks |
 | `select-tags` | String List            | Include only tasks with this tag (can be used with day/week) | All tasks |
-| `overdue`     | true/false             | Include tasks which are considered overdue                   | true      |
+| `overdue`     | true/false             | Include if task is overdue in relation to selected day/week  | false     |
 | `completed`   | true/false             | Include tasks which are checked                              | true      |
 | `due`         | true/false             | Include tasks which have a due date                          | true      |
-| `no-due`      | true/false             | Include tasks which do not have a due date                   | false     |
+| `no-due`      | true/false             | Include tasks which do not have a due date                   | true      |
 | `sort`        | "score", "due", ""     | Specify the sort order of the tasks                          | ""        |
 | `group`       | "due", "completed", "" | Specify how tasks should be grouped in the list              | ""        |
 
