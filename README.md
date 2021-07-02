@@ -2,7 +2,12 @@
 
 tq is a plugin for [Obsidian](https://obsidian.md) for managing tasks using a
 file-based workflow. Each task is represented as a Markdown note with a single
-task line and some metadata in the frontmatter. For example:
+task line and some metadata in the frontmatter.
+
+
+![tq demo](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/tq-demo.gif)
+
+An example task note:
 
 ```
 ---

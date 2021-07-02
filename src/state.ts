@@ -168,7 +168,8 @@ export const filtersFromState = (state: SharedState): Filter[] => {
   }
 
   if (state.selectWeek && state.selectWeek.length > 0) {
-    const selectedWeek = window.moment(state.selectWeek).startOf('week');
+    const weekStart = window.moment(state.selectWeek).startOf('week');
+    const weekEnd = weekStart.clone().add(1, 'week');
 
     // Filtering select-week does not remove tasks which do not have a due date.
     if (state.overdue) {
@@ -177,7 +178,7 @@ export const filtersFromState = (state: SharedState): Filter[] => {
           return true;
         }
         const due = window.moment(task.due);
-        return due <= selectedWeek.add(1, 'week');
+        return due.isBefore(weekEnd);
       });
     } else {
       filters.push((task: Task) => {
@@ -185,7 +186,7 @@ export const filtersFromState = (state: SharedState): Filter[] => {
           return true;
         }
         const due = window.moment(task.due);
-        return due >= selectedWeek && due <= selectedWeek.add(1, 'week');
+        return due.isBetween(weekStart, weekEnd, undefined, '[]');
       });
     }
   }
