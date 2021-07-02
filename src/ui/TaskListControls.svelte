@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SharedState } from '../task-list-view';
+  import type { SharedState } from '../state';
   import { calendar, ol } from '../graphics';
   import type { Writable } from 'svelte/store';
 
@@ -7,14 +7,20 @@
 
   const setOrderBy = (order: 'due' | 'score') => {
     state.update((state) => {
-      state.orderby = order;
+      if (order === 'due') {
+        state.sort = 'score';
+        state.group = 'due';
+      } else {
+        state.sort = 'score';
+        state.group = undefined;
+      }
       return state;
     });
   };
 </script>
 
 <div id="tq-task-controls">
-  {#if $state.orderby === 'score'}
+  {#if $state.sort === 'score'}
     <button name="Order by due" on:click={() => setOrderBy('due')}>
       {@html ol}
     </button>

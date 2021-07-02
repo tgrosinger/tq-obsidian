@@ -18,7 +18,7 @@ export class TaskListView extends ItemView {
     this.state = writable(
       stateWithDefaults(
         // TODO: Change default sort to 'score'
-        { completed: false, due: true, noDue: true, sort: 'due' },
+        { completed: false, sort: 'due', group: 'due' },
       ),
     );
 

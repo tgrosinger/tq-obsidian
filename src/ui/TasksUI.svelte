@@ -2,11 +2,10 @@
   import { SharedState, filtersFromState } from '../state';
   import type TQPlugin from '../main';
   import { CalcTaskScore, Task } from '../file-interface';
-  import TaskListSorted from './TaskListSorted.svelte';
-  import TaskListGrouped from './TaskListGrouped.svelte';
+  import TaskListTask from './TaskListTask.svelte';
   import TaskListControls from './TaskListControls.svelte';
   import type { Component } from 'obsidian';
-  import { every, filter } from 'lodash';
+  import { Dictionary, every, filter, forEach, groupBy, sortBy } from 'lodash';
   import type { Writable } from 'svelte/store';
 
   export let plugin: TQPlugin;
@@ -14,15 +13,72 @@
   export let state: Writable<SharedState>;
   export let hideControls = false;
 
-  $: allFilters = filtersFromState($state);
+  const getGrouper = (state: SharedState): ((t: Task) => string) => {
+    switch (state.group) {
+      case 'due':
+        return (t) => t.due || 'No Due Date';
+      case 'completed':
+        return (t) => (t.checked ? 'Complete' : 'Incomplete');
+      default:
+        return (_) => undefined;
+    }
+  };
 
-  const sorterByScore = (t: Task): any => CalcTaskScore(t);
-  const grouperByDate = (t: Task): any => t.due;
-  const keySorterByDate = (k: string): any => window.moment(k);
+  const getKeySorter = (state: SharedState): ((k: string) => any) => {
+    const re = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.compile();
+    switch (state.group) {
+      case 'due':
+        return (k): any => (re.test(k) ? window.moment(k) : undefined);
+      case 'completed':
+        return (k): any => (k === 'Complete' ? -1 : 1);
+      default:
+        return (_): any => 0;
+    }
+  };
+
+  const getTaskSorter = (
+    state: SharedState,
+  ): ((a: Task, b: Task) => number) => {
+    switch (state.sort) {
+      case 'due':
+        return (a, b) => window.moment(a.due).diff(window.moment(b.due));
+      case 'score':
+        return (a, b) => CalcTaskScore(a) - CalcTaskScore(b);
+      default:
+        return (a, b) => 0;
+    }
+  };
+
+  const getTasks = (
+    state: SharedState,
+    tasks: Record<string, Task>,
+  ): Dictionary<Task[]> => {
+    const allFilters = filtersFromState(state);
+    const filteredTasks = filter(tasks, (t) => every(allFilters, (f) => f(t)));
+    const grouper = getGrouper(state);
+    const tasksGrouped = groupBy(filteredTasks, grouper);
+
+    const taskSorter = getTaskSorter(state);
+    forEach(tasksGrouped, (val) => {
+      val.sort(taskSorter);
+    });
+
+    return tasksGrouped;
+  };
+
+  const getSortedKeys = (
+    state: SharedState,
+    tasksGrouped: Dictionary<Task[]>,
+  ): string[] => {
+    const keySorter = getKeySorter(state);
+    const groupKeys = Object.keys(tasksGrouped);
+    return sortBy(groupKeys, keySorter);
+  };
 
   let taskCache = plugin.taskCache;
   let tasks = taskCache.tasks;
-  $: filteredTasks = filter($tasks, (t) => every(allFilters, (f) => f(t)));
+  $: tasksGrouped = getTasks($state, $tasks);
+  $: sortedKeys = getSortedKeys($state, tasksGrouped);
 </script>
 
 <div>
@@ -30,20 +86,14 @@
     <TaskListControls {state} />
   {/if}
 
-  {#if $state.sort === 'due'}
-    <TaskListGrouped
-      {plugin}
-      {view}
-      grouper={grouperByDate}
-      keySorter={keySorterByDate}
-      tasks={filteredTasks}
-    />
-  {:else if $state.sort === 'score'}
-    <TaskListSorted
-      {plugin}
-      {view}
-      tasks={filteredTasks}
-      sorter={sorterByScore}
-    />
-  {/if}
+  <div>
+    {#each sortedKeys as key (key)}
+      {#if key !== 'undefined'}
+        <h3>{key}</h3>
+      {/if}
+      {#each tasksGrouped[key] as task (task.line)}
+        <TaskListTask {task} {view} {plugin} />
+      {/each}
+    {/each}
+  </div>
 </div>

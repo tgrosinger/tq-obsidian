@@ -97,6 +97,7 @@ export default class TQPlugin extends Plugin {
       }),
     );
 
+    /*
     this.registerEvent(
       this.app.workspace.on('file-menu', (menu, file, source) => {
         if (source !== 'calendar-context-menu') {
@@ -114,6 +115,7 @@ export default class TQPlugin extends Plugin {
         });
       }),
     );
+    */
 
     // this.registerMarkdownPostProcessor(this.markdownPostProcessor);
 
