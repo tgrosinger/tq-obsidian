@@ -20,7 +20,8 @@
 </script>
 
 <div id="tq-task-controls">
-  {#if $state.sort === 'score'}
+  <!-- TODO: This is not a robust way of switching -->
+  {#if $state.group === undefined}
     <button name="Order by due" on:click={() => setOrderBy('due')}>
       {@html ol}
     </button>

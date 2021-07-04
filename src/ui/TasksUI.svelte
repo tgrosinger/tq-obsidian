@@ -75,6 +75,8 @@
     return sortBy(groupKeys, keySorter);
   };
 
+  // TODO: This is performed several times as the page loads. Find how to only run once.
+  // I think it might be run over and over as each task is loaded into the vault.
   let taskCache = plugin.taskCache;
   let tasks = taskCache.tasks;
   $: tasksGrouped = getTasks($state, $tasks);
