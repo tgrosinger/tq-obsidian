@@ -11,17 +11,21 @@ export interface Task {
   frontmatter: Frontmatter;
   line: string;
   checked: boolean;
-  due: string | undefined;
+  due: Moment | undefined;
 }
 
-export const CalcTaskScore = (task: Task): number =>
+export const CalcTaskScore = (task: Task): number => {
+  // negative value indicates amount over-due
+  const untilDue = task.due.diff(window.moment());
+
   // TODO: Calculate task score
   // Factors:
   // - Days overdue (current date - due date)
   // - Days until due (due date - current date)
   // - Priority
   // - Urgency
-  -1;
+  return -1;
+};
 
 export type FilePath = string;
 
@@ -117,9 +121,7 @@ export class TaskCache {
         '',
       ),
       checked: ['x', 'X'].contains(metadata.listItems[0].task),
-      due: due
-        ? window.moment(due).endOf('day').format('YYYY-MM-DD')
-        : undefined,
+      due: due ? window.moment(due).endOf('day') : undefined,
     });
   };
 }

@@ -13,7 +13,7 @@ const makeTask = (lineIdx: number, md: string[]): Task => {
     frontmatter,
     line: md[lineIdx].replace(/- \[[x ]\]/, ''),
     checked: md[lineIdx].startsWith('- [x]'),
-    due: due ? moment(due).endOf('day').format('YYYY-MM-DD') : undefined,
+    due: due ? moment(due).endOf('day') : undefined,
   };
 };
 

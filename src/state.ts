@@ -137,12 +137,14 @@ export const filtersFromState = (state: SharedState): Filter[] => {
       filters.push(
         (task: Task) =>
           task.due === undefined ||
-          task.due === state.selectDay ||
-          window.moment(task.due).isBefore(selectedDay),
+          task.due.format('YYYY-MM-DD') === state.selectDay ||
+          task.due.isBefore(selectedDay),
       );
     } else {
       filters.push(
-        (task: Task) => task.due === undefined || task.due === state.selectDay,
+        (task: Task) =>
+          task.due === undefined ||
+          task.due.format('YYYY-MM-DD') === state.selectDay,
       );
     }
   }
@@ -174,19 +176,14 @@ export const filtersFromState = (state: SharedState): Filter[] => {
     // Filtering select-week does not remove tasks which do not have a due date.
     if (state.overdue) {
       filters.push((task: Task) => {
-        if (task.due === undefined) {
-          return true;
-        }
-        const due = window.moment(task.due);
-        return due.isBefore(weekEnd);
+        return task.due === undefined || task.due.isBefore(weekEnd);
       });
     } else {
       filters.push((task: Task) => {
-        if (task.due === undefined) {
-          return true;
-        }
-        const due = window.moment(task.due);
-        return due.isBetween(weekStart, weekEnd, undefined, '[]');
+        return (
+          task.due === undefined ||
+          task.due.isBetween(weekStart, weekEnd, undefined, '[]')
+        );
       });
     }
   }

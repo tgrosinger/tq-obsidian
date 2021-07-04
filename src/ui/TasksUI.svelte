@@ -16,7 +16,7 @@
   const getGrouper = (state: SharedState): ((t: Task) => string) => {
     switch (state.group) {
       case 'due':
-        return (t) => t.due || 'No Due Date';
+        return (t) => t.due.format('YYYY-MM-DD') || 'No Due Date';
       case 'completed':
         return (t) => (t.checked ? 'Complete' : 'Incomplete');
       default:
