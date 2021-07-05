@@ -82,21 +82,29 @@
     <span class="task-line" bind:this={lineEl} />
 
     {#if overdue}
-      <span class="overdue-alert">
+      <span class="overdue-alert" title="Due {task.due.format('YYYY-MM-DD')}">
         {@html overdueAlert}
       </span>
     {/if}
 
-    <span on:click={viewSource}>
+    <span on:click={viewSource} title="View note">
       {@html externalLink}
     </span>
 
     {#if !expanded}
-      <span class="expand-chevron" on:click={toggleExpanded}>
+      <span
+        class="expand-chevron"
+        on:click={toggleExpanded}
+        title="See details"
+      >
         {@html chevronDown}
       </span>
     {:else}
-      <span class="expand-chevron rotated-180" on:click={toggleExpanded}>
+      <span
+        class="expand-chevron rotated-180"
+        on:click={toggleExpanded}
+        title="Hide details"
+      >
         {@html chevronDown}
       </span>
     {/if}
