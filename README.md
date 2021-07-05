@@ -92,6 +92,8 @@ task may not be synced unless you leave Obsidian open long enough to complete.
 
 [Example Shortcut](https://www.icloud.com/shortcuts/ea7991d02bc24922ace9b49c670a1397)
 
+https://user-images.githubusercontent.com/597386/124496753-adfb4a00-dd6e-11eb-830f-3dd2cd87cc66.mp4
+
 ## Pricing
 
 This plugin is provided to everyone for free, however if you would like to
