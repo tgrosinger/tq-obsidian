@@ -107,8 +107,6 @@ my way through one of the following methods:
 So far the majority of my effort has been focused on functionality, so the UI
 has some very rough edges. It will hopefully improve over time!
 
-![task list](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/task-list.png)
-
 ![create-task](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/create-task.png)
 
 ![edit task repeat](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/edit-repeat.png)
