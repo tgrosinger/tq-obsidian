@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Task } from '../file-interface';
-  import { chevronDown, externalLink } from '../graphics';
+  import { chevronDown, externalLink, overdueAlert } from '../graphics';
   import { DuePickerModal, RepeatPickerModal } from '../modals';
   import type TQPlugin from '../main';
   import type { Moment } from 'moment';
@@ -10,7 +10,7 @@
   import { afterUpdate, onMount } from 'svelte';
 
   export let plugin: TQPlugin;
-  export let task: Task;
+  export let task: Task; // TODO: Task needs to be an updatable
   export let view: Component;
 
   let lineEl: HTMLElement;
@@ -20,6 +20,8 @@
   let due = task.due;
   const completed = task.frontmatter.get('completed');
   const lastCompleted = completed ? completed[completed.length - 1] : undefined;
+  const overdue =
+    (!task.checked && task.due?.isBefore(window.moment())) || false;
 
   $: rootClasses = 'tq-task ' + (expanded ? 'expanded-root' : '');
 
@@ -78,6 +80,13 @@
       on:change={toggleChecked}
     />
     <span class="task-line" bind:this={lineEl} />
+
+    {#if overdue}
+      <span class="overdue-alert">
+        {@html overdueAlert}
+      </span>
+    {/if}
+
     <span on:click={viewSource}>
       {@html externalLink}
     </span>
@@ -105,7 +114,7 @@
         <input
           type="text"
           class="value"
-          value={due || 'No due date'}
+          value={due.format('YYYY-MM-DD') || 'No due date'}
           on:click={showDuePicker}
         />
       </div>
@@ -145,6 +154,10 @@
 
   .expanded-root {
     margin: 10px 0;
+  }
+
+  .overdue-alert {
+    padding: 0 10px;
   }
 
   .expand-chevron {

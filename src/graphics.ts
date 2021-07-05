@@ -7,6 +7,10 @@ export const chevronDown = `<svg fill=var(--text-muted) width="12" height="12" v
  <path d="m10.293 2.4395-4.293 4.293-4.293-4.293-1.414 1.414 5.707 5.707 5.707-5.707z"/>
 </svg>`;
 
+export const overdueAlert = `<svg fill=var(--text-error) width="18" height="18" version="1.1" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+ <path d="m4 0v2h-1c-1.11 0-2 0.89-2 2v14c0 1.11 0.9 2 2 2h14c1.11 0 2-0.89 2-2v-14c0-1.1-0.89-2-2-2h-1v-2h-2v2h-8v-2h-2m-1 7h14v11h-14v-12m6 2v5h2v-5h-2m0 7v2h2v-2z"/>
+</svg>`;
+
 export const note = `<svg width="18" height="18" version="1.1" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
  <path d="m16 0h-14c-1.103 0-2 0.897-2 2v14c0 1.103 0.897 2 2 2h8c0.131 0 0.26-0.026 0.381-0.076s0.232-0.123 0.326-0.217l7-7c0.086-0.086 0.147-0.187 0.196-0.293 0.014-0.03 0.022-0.061 0.033-0.093 0.028-0.084 0.046-0.17 0.051-0.259 2e-3 -0.021 0.013-0.041 0.013-0.062v-8c0-1.103-0.897-2-2-2zm-14 2h14v7h-6c-0.553 0-1 0.448-1 1v6h-7zm9 12.586v-3.586h3.586z"/>
 </svg>`;

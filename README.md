@@ -5,7 +5,6 @@ file-based workflow. Each task is represented as a Markdown note with a single
 task line and some metadata in the frontmatter. Tasks are viewed by embedding
 queries in other notes, such as your Daily Note.
 
-
 ![tq demo](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/tq-demo.gif)
 
 An example task note:
