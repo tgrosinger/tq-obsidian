@@ -3,8 +3,6 @@ import { convertLegacyTask } from './legacy-parser';
 import { CreateTaskModal } from './modals';
 import { ISettings, settingsWithDefaults } from './settings';
 import { stateFromConfig } from './state';
-import { TaskListView, TQTaskListViewType } from './task-list-view';
-import { TaskView, TQTaskViewType } from './task-view';
 import TasksUI from './ui/TasksUI.svelte';
 import {
   MarkdownPostProcessorContext,
@@ -29,18 +27,8 @@ export default class TQPlugin extends Plugin {
     this.fileInterface = new FileInterface(this, this.app);
     this.taskCache = new TaskCache(this, this.app);
 
-    this.registerView(TQTaskViewType, (leaf) => new TaskView(leaf, this));
-    this.registerView(
-      TQTaskListViewType,
-      (leaf) => new TaskListView(leaf, this),
-    );
-
     this.addRibbonIcon('checkbox-glyph', 'tq', () => {
-      const activeLeaf = this.app.workspace.getLeaf(false);
-      activeLeaf.setViewState({
-        type: TQTaskListViewType,
-        state: {},
-      });
+      new CreateTaskModal(this.app, this).open();
     });
 
     // TODO: If triggered from a daily note, use that as the due date default
@@ -162,7 +150,6 @@ export default class TQPlugin extends Plugin {
         plugin: this,
         view: null,
         state: writable(stateFromConfig(source.split('\n'))),
-        hideControls: true,
       },
     });
   };

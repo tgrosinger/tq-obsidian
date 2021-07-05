@@ -3,7 +3,6 @@
   import type TQPlugin from '../main';
   import { CalcTaskScore, Task } from '../file-interface';
   import TaskListTask from './TaskListTask.svelte';
-  import TaskListControls from './TaskListControls.svelte';
   import type { Component } from 'obsidian';
   import { Dictionary, every, filter, forEach, groupBy, sortBy } from 'lodash';
   import type { Writable } from 'svelte/store';
@@ -11,7 +10,6 @@
   export let plugin: TQPlugin;
   export let view: Component;
   export let state: Writable<SharedState>;
-  export let hideControls = false;
 
   const getGrouper = (state: SharedState): ((t: Task) => string) => {
     switch (state.group) {
@@ -84,18 +82,12 @@
 </script>
 
 <div>
-  {#if !hideControls}
-    <TaskListControls {state} />
-  {/if}
-
-  <div>
-    {#each sortedKeys as key (key)}
-      {#if key !== 'undefined'}
-        <h3>{key}</h3>
-      {/if}
-      {#each tasksGrouped[key] as task (task.line)}
-        <TaskListTask {task} {view} {plugin} />
-      {/each}
+  {#each sortedKeys as key (key)}
+    {#if key !== 'undefined'}
+      <h3>{key}</h3>
+    {/if}
+    {#each tasksGrouped[key] as task (task.line)}
+      <TaskListTask {task} {view} {plugin} />
     {/each}
-  </div>
+  {/each}
 </div>
