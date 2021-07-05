@@ -66,7 +66,6 @@ export class RepeatAdapter {
         Frequency.DAILY,
       ].contains(frequency)
     ) {
-      // TODO: Display a notification instead?
       throw new Error(`Invalid frequency ${frequency} requested`);
     }
 

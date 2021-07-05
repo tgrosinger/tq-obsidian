@@ -92,9 +92,9 @@ export class TaskCache {
     );
   };
 
-  public readonly handleTaskDeleted = (afile: TAbstractFile): void => {
+  public readonly handleTaskDeleted = (path: string): void => {
     this.tasks.update((tasks): Record<FilePath, Task> => {
-      delete tasks[afile.path];
+      delete tasks[path];
       return tasks;
     });
   };

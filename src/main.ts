@@ -12,8 +12,6 @@ import {
 } from 'obsidian';
 import { writable } from 'svelte/store';
 
-// TODO: Add action from calendar plugin to show tasks for a selected day
-
 export default class TQPlugin extends Plugin {
   public settings: ISettings;
   public fileInterface: FileInterface;
@@ -52,7 +50,20 @@ export default class TQPlugin extends Plugin {
       },
     });
 
-    // TODO: on('rename')
+    this.registerEvent(
+      this.app.vault.on('rename', (afile, oldPath) => {
+        if (oldPath.startsWith(this.settings.TasksDir)) {
+          this.taskCache.handleTaskDeleted(oldPath);
+          const file = this.app.metadataCache.getFirstLinkpathDest(
+            afile.path,
+            '/',
+          );
+          if (file) {
+            this.taskCache.handleTaskModified(file);
+          }
+        }
+      }),
+    );
 
     this.registerEvent(
       this.app.vault.on('modify', (file) => {
@@ -80,32 +91,10 @@ export default class TQPlugin extends Plugin {
     this.registerEvent(
       this.app.vault.on('delete', (file) => {
         if (file.path.startsWith(this.settings.TasksDir)) {
-          this.taskCache.handleTaskDeleted(file);
+          this.taskCache.handleTaskDeleted(file.path);
         }
       }),
     );
-
-    /*
-    this.registerEvent(
-      this.app.workspace.on('file-menu', (menu, file, source) => {
-        if (source !== 'calendar-context-menu') {
-          return;
-        }
-
-        // TODO: No menu for days that don't have a note yet?
-
-        menu.addItem((item) => {
-          item.setTitle('Show tasks for day');
-          item.setIcon('checkbox-glyph');
-          item.onClick(() => {
-            // TODO
-          });
-        });
-      }),
-    );
-    */
-
-    // this.registerMarkdownPostProcessor(this.markdownPostProcessor);
 
     this.registerMarkdownCodeBlockProcessor(
       'tq',
@@ -154,31 +143,5 @@ export default class TQPlugin extends Plugin {
         state: writable(stateFromConfig(source.split('\n'))),
       },
     });
-  };
-
-  private readonly markdownPostProcessor = (
-    el: HTMLElement,
-    ctx: MarkdownPostProcessorContext,
-  ): void => {
-    if (!ctx.sourcePath.startsWith(this.settings.TasksDir)) {
-      return;
-    }
-
-    const info = ctx.getSectionInfo(el);
-    if (!info) {
-      return;
-    }
-
-    if (info.lineStart === 0) {
-      this.renderTaskControls(el, ctx);
-    }
-  };
-
-  private readonly renderTaskControls = (
-    el: HTMLElement,
-    ctx: MarkdownPostProcessorContext,
-  ): void => {
-    // TODO: Add "Open in tq" link to the top using protocol handler
-    el.createEl('p').setText('Hello?');
   };
 }
