@@ -2,7 +2,8 @@
 
 tq is a plugin for [Obsidian](https://obsidian.md) for managing tasks using a
 file-based workflow. Each task is represented as a Markdown note with a single
-task line and some metadata in the frontmatter.
+task line and some metadata in the frontmatter. Tasks are viewed by embedding
+queries in other notes, such as your Daily Note.
 
 
 ![tq demo](https://raw.githubusercontent.com/tgrosinger/tq-obsidian/main/resources/screenshots/tq-demo.gif)
@@ -23,17 +24,15 @@ completed:
 
 ```
 
-Tasks can be viewed and edited from the tq view. In the future it will be
-possible to embed task views in other notes.
-
 This plugin is still under active development and is not yet feature complete.
 It does however have the basic functionality, and I'll be adding more as needed
 by my tasks workflow.
 
 ## Custom Blocks
 
-In addition to using the tq UI, accessible from the ribbon icon, you can also
-embed task queries in any note by using code blocks.
+Tasks can be queried by using custom code blocks in notes. Here's an example
+which would include any tasks for the specified date or which are overdue (in
+relation to that date). It will also omit any tasks which have been completed.
 
     ```tq
     select-day: 2021-06-06
@@ -58,6 +57,7 @@ Or for a more complicated example:
 | `select-day`  | Date                   | Include only tasks due this day                              | All tasks |
 | `select-week` | Date                   | Include only tasks due this week                             | All tasks |
 | `select-tags` | String List            | Include only tasks with this tag (can be used with day/week) | All tasks |
+| `omit-tags`   | String List            | Exclude tasks with this tag (can be used with day/week)      | Omit none |
 | `overdue`     | true/false             | Include if task is overdue in relation to selected day/week  | false     |
 | `completed`   | true/false             | Include tasks which are checked                              | true      |
 | `due`         | true/false             | Include tasks which have a due date                          | true      |

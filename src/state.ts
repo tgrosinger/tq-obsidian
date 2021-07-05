@@ -9,6 +9,7 @@ const SharedStateDefaults: SharedState = {
   sort: 'score',
   group: undefined,
   selectTags: [],
+  omitTags: [],
   selectDay: undefined,
   selectWeek: undefined,
 };
@@ -22,6 +23,7 @@ export interface SharedState {
   group: 'due' | 'completed' | undefined;
 
   selectTags: string[];
+  omitTags: string[];
   selectDay: string | undefined;
   selectWeek: string | undefined;
 }
@@ -96,6 +98,17 @@ export const stateFromConfig = (lines: string[]): SharedState => {
           state.selectTags = [parts[1]];
         }
         break;
+      case 'omit-tags':
+        if (parts[1].match(/^\[.*\]$/)) {
+          state.omitTags = parts[1]
+            .replace(/^\[/, '')
+            .replace(/\]$/, '')
+            .split(',')
+            .map((t) => t.trim());
+        } else {
+          state.omitTags = [parts[1]];
+        }
+        break;
       case 'select-day':
         state.selectDay = parts[1];
         state.due = true;
@@ -166,6 +179,19 @@ export const filtersFromState = (state: SharedState): Filter[] => {
       }
 
       return intersection(tags, state.selectTags).length > 0;
+    });
+  }
+  if (state.omitTags && state.omitTags.length > 0) {
+    filters.push((task: Task) => {
+      let tags = task.frontmatter.get('tags');
+      if (!tags) {
+        return true;
+      }
+      if (!Array.isArray(tags)) {
+        tags = [tags];
+      }
+
+      return intersection(tags, state.omitTags).length === 0;
     });
   }
 
