@@ -1,6 +1,6 @@
 {
   "name": "tq-obsidian",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "File-based Task Management",
   "main": "main.js",
   "scripts": {

@@ -18,7 +18,7 @@ export interface Task {
 
 export const CalcTaskScore = (task: Task): number => {
   // negative value indicates amount over-due
-  const untilDue = task.due.diff(window.moment());
+  //const untilDue = task.due.diff(window.moment());
 
   // TODO: Calculate task score
   // Factors:
@@ -26,6 +26,7 @@ export const CalcTaskScore = (task: Task): number => {
   // - Days until due (due date - current date)
   // - Priority
   // - Urgency
+  // - How long ago it was created (more recent task are more important)
   return -1;
 };
 
