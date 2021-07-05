@@ -17,17 +17,38 @@ export interface Task {
 }
 
 export const CalcTaskScore = (task: Task): number => {
-  // negative value indicates amount over-due
-  //const untilDue = task.due.diff(window.moment());
-
-  // TODO: Calculate task score
   // Factors:
   // - Days overdue (current date - due date)
   // - Days until due (due date - current date)
   // - Priority
   // - Urgency
   // - How long ago it was created (more recent task are more important)
-  return -1;
+
+  let score = 1;
+  if (task.checked) {
+    return score;
+  }
+
+  if (task.due) {
+    const untilDue = task.due.diff(window.moment(), 'days');
+    if (untilDue > 0) {
+      // Upcoming tasks use 1/(days until due)
+      score *= 1 / untilDue;
+    } else {
+      // negative value indicates amount over-due
+      // Overdue tasks use (days overdue)/2
+      score *= untilDue / 2;
+    }
+  }
+
+  if (task.urgent) {
+    score *= 2;
+  }
+  if (task.important) {
+    score *= 1.5;
+  }
+
+  return score;
 };
 
 export type FilePath = string;
@@ -282,10 +303,10 @@ export class FileInterface {
       frontMatter.push(`tags: [ ${tags.join(', ')} ]`);
     }
     if (urgent) {
-      frontMatter.push(`urgent: true`);
+      frontMatter.push('urgent: true');
     }
     if (important) {
-      frontMatter.push(`important: true`);
+      frontMatter.push('important: true');
     }
 
     const contents = [];

@@ -10,7 +10,7 @@
   import { afterUpdate, onMount } from 'svelte';
 
   export let plugin: TQPlugin;
-  export let task: Task; // TODO: Task needs to be an updatable
+  export let task: Task;
   export let view: Component;
 
   let lineEl: HTMLElement;

@@ -201,16 +201,12 @@ export const filtersFromState = (state: SharedState): Filter[] => {
 
     // Filtering select-week does not remove tasks which do not have a due date.
     if (state.overdue) {
-      filters.push((task: Task) => {
-        return task.due === undefined || task.due.isBefore(weekEnd);
-      });
+      filters.push((task: Task) => task.due === undefined || task.due.isBefore(weekEnd));
     } else {
-      filters.push((task: Task) => {
-        return (
+      filters.push((task: Task) => (
           task.due === undefined ||
           task.due.isBetween(weekStart, weekEnd, undefined, '[]')
-        );
-      });
+        ));
     }
   }
 
