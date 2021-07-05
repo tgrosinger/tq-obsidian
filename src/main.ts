@@ -129,6 +129,8 @@ export default class TQPlugin extends Plugin {
         params.due,
         params.repeat,
         params.tags ? params.tags.split(',') : [],
+        false,
+        false,
       );
 
       new Notice('Task created');

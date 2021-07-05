@@ -11,6 +11,8 @@
     due: string,
     repeat: string,
     tags: string[],
+    urgent: boolean,
+    important: boolean,
   ) => void;
   export let app: App;
 
@@ -29,12 +31,21 @@
   let due = '';
   let showDuePicker = false;
   let tags = '';
+  let urgent = false;
+  let important = false;
 
   const save = () => {
     const cleanedTags = tags
       .split(',')
       .map((tag) => tag.trim().replace('#', ''));
-    store(description, due, repeats ? repeatConfig : '', cleanedTags);
+    store(
+      description,
+      due,
+      repeats ? repeatConfig : '',
+      cleanedTags,
+      urgent,
+      important,
+    );
     close();
   };
 
@@ -80,6 +91,18 @@
 <div>
   <label for="tags">Tags</label>
   <TextSuggest {app} bind:value={tags} suggestions={tagCache} />
+</div>
+<div>
+  <label>
+    <input type="checkbox" bind:checked={important} />
+    Important
+  </label>
+</div>
+<div>
+  <label>
+    <input type="checkbox" bind:checked={urgent} />
+    Urgent
+  </label>
 </div>
 
 <button on:click={save}>Save</button>

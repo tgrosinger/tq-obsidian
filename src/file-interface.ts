@@ -12,6 +12,8 @@ export interface Task {
   line: string;
   checked: boolean;
   due: Moment | undefined;
+  urgent: boolean;
+  important: boolean;
 }
 
 export const CalcTaskScore = (task: Task): number => {
@@ -122,6 +124,8 @@ export class TaskCache {
       ),
       checked: ['x', 'X'].contains(metadata.listItems[0].task),
       due: due ? window.moment(due).endOf('day') : undefined,
+      important: frontmatter.get('important'),
+      urgent: frontmatter.get('urgent'),
     });
   };
 }
@@ -234,11 +238,20 @@ export class FileInterface {
     due: string,
     repeat: string,
     tags: string[],
+    urgent: boolean,
+    important: boolean,
   ): Promise<void> => {
     const tasksDir = this.plugin.settings.TasksDir;
     const newHash = this.createTaskBlockHash();
     const fileName = `${tasksDir}/${newHash}.md`;
-    const data = this.formatNewTask(description, due, repeat, tags);
+    const data = this.formatNewTask(
+      description,
+      due,
+      repeat,
+      tags,
+      urgent,
+      important,
+    );
 
     console.debug('tq: Creating a new task in ' + fileName);
     console.debug(data);
@@ -254,6 +267,8 @@ export class FileInterface {
     due: string,
     repeat: string,
     tags: string[],
+    urgent: boolean,
+    important: boolean,
   ): string => {
     const frontMatter = [];
     if (due && due !== '') {
@@ -264,6 +279,12 @@ export class FileInterface {
     }
     if (tags && tags.length > 0 && tags[0].length > 0) {
       frontMatter.push(`tags: [ ${tags.join(', ')} ]`);
+    }
+    if (urgent) {
+      frontMatter.push(`urgent: true`);
+    }
+    if (important) {
+      frontMatter.push(`important: true`);
     }
 
     const contents = [];
