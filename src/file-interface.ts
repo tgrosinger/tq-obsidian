@@ -134,16 +134,14 @@ export class TaskCache {
 
     const contents = await this.app.vault.read(file);
     const lines = contents.split('\n');
+    const lineIdx = metadata.listItems[0].position.start.line;
     const frontmatter = new Frontmatter(lines);
     const due = frontmatter.get('due');
     return ok({
       file,
       md: contents,
       frontmatter,
-      line: lines[metadata.listItems[0].position.start.line].replace(
-        /- \[[xX ]\]/,
-        '',
-      ),
+      line: lines[lineIdx].replace(/- \[[xX ]\]/, ''),
       checked: ['x', 'X'].contains(metadata.listItems[0].task),
       due: due ? window.moment(due).endOf('day') : undefined,
       important: frontmatter.get('important'),
