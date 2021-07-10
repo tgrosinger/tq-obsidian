@@ -122,7 +122,7 @@
         <input
           type="text"
           class="value"
-          value={due.format('YYYY-MM-DD') || 'No due date'}
+          value={due ? due.format('YYYY-MM-DD') : 'No due date'}
           on:click={showDuePicker}
         />
       </div>
