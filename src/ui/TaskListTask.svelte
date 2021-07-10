@@ -8,6 +8,7 @@
   import type { Component } from 'obsidian';
   import { MarkdownRenderer } from 'obsidian';
   import { afterUpdate, onMount } from 'svelte';
+  import TaskPriorityStripe from './TaskPriorityStripe.svelte';
 
   export let plugin: TQPlugin;
   export let task: Task;
@@ -74,6 +75,8 @@
 
 <div class={rootClasses}>
   <div class="task-row">
+    <TaskPriorityStripe {task} />
+
     <input
       type="checkbox"
       bind:checked={task.checked}
