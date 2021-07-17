@@ -25,7 +25,16 @@ export class Frontmatter {
     const replacer = (k: string, v: any): any =>
       k === 'due' ? window.moment(v).endOf('day').format('YYYY-MM-DD') : v;
     const fmLines = dump(this.contents, { replacer }).trim();
-    this.lines.splice(this.start, this.end - this.start + 1, fmLines);
+
+    if (this.start === -1 || this.end === -1) {
+      // If there was no frontmatter, add it now
+      this.lines.unshift('');
+      this.lines.unshift('---');
+      this.lines.unshift(fmLines);
+      this.lines.unshift('---');
+    } else {
+      this.lines.splice(this.start, this.end - this.start + 1, fmLines);
+    }
   };
 
   private readonly initBoundaries = (): void => {
