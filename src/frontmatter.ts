@@ -81,7 +81,7 @@ export const setCompleted = (frontmatter: Frontmatter): void => {
 export const setDueDate = (frontmatter: Frontmatter): void => {
   const repeatConfig = frontmatter.get('repeat');
   const repeater = RRule.fromText(repeatConfig);
-  const next = repeater.after(window.moment().endOf('day').toDate());
+  const next = repeater.after(window.moment.utc().endOf('day').toDate());
   const due = window.moment(next).startOf('day').toDate();
   frontmatter.set('due', due);
 };
