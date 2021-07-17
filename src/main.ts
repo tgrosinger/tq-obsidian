@@ -1,4 +1,5 @@
 import { FileInterface, TaskCache } from './file-interface';
+import { buyMeACoffee, paypal } from './graphics';
 import { convertLegacyTask } from './legacy-parser';
 import { CreateTaskModal } from './modals';
 import { ISettings, settingsWithDefaults } from './settings';
@@ -13,7 +14,6 @@ import {
   Setting,
 } from 'obsidian';
 import { writable } from 'svelte/store';
-import { buyMeACoffee, paypal } from './graphics';
 
 export default class TQPlugin extends Plugin {
   public settings: ISettings;
