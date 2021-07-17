@@ -9,8 +9,11 @@ import {
   MarkdownView,
   Notice,
   Plugin,
+  PluginSettingTab,
+  Setting,
 } from 'obsidian';
 import { writable } from 'svelte/store';
+import { buyMeACoffee, paypal } from './graphics';
 
 export default class TQPlugin extends Plugin {
   public settings: ISettings;
@@ -21,6 +24,7 @@ export default class TQPlugin extends Plugin {
     console.log('tq: Loading plugin v' + this.manifest.version);
 
     await this.loadSettings();
+    this.addSettingTab(new SettingsTab(this));
 
     this.fileInterface = new FileInterface(this, this.app);
     this.taskCache = new TaskCache(this, this.app);
@@ -145,3 +149,65 @@ export default class TQPlugin extends Plugin {
     });
   };
 }
+
+class SettingsTab extends PluginSettingTab {
+  private readonly plugin: TQPlugin;
+
+  constructor(plugin: TQPlugin) {
+    super(plugin.app, plugin);
+    this.plugin = plugin;
+  }
+
+  public display(): void {
+    const { containerEl } = this;
+    containerEl.empty();
+
+    containerEl.createEl('h2', { text: 'tq Plugin - Settings' });
+
+    new Setting(containerEl)
+      .setName('Tasks Directory')
+      .setDesc('The vault directory in which to store task files')
+      .addText((text) => {
+        text.setPlaceholder('$').setValue(this.plugin.settings.TasksDir);
+        text.inputEl.onblur = (e: FocusEvent) => {
+          this.plugin.settings.TasksDir = (e.target as HTMLInputElement).value;
+          this.plugin.saveData(this.plugin.settings);
+        };
+      });
+
+    const div = containerEl.createEl('div', {
+      cls: 'tq-donation',
+    });
+
+    const donateText = document.createElement('p');
+    donateText.appendText(
+      'If this plugin adds value for you and you would like to help support ' +
+        'continued development, please use the buttons below:',
+    );
+    div.appendChild(donateText);
+
+    const parser = new DOMParser();
+
+    div.appendChild(
+      createDonateButton(
+        'https://paypal.me/tgrosinger',
+        parser.parseFromString(paypal, 'text/xml').documentElement,
+      ),
+    );
+
+    div.appendChild(
+      createDonateButton(
+        'https://www.buymeacoffee.com/tgrosinger',
+        parser.parseFromString(buyMeACoffee, 'text/xml').documentElement,
+      ),
+    );
+  }
+}
+
+const createDonateButton = (link: string, img: HTMLElement): HTMLElement => {
+  const a = document.createElement('a');
+  a.setAttribute('href', link);
+  a.addClass('tq-donate-button');
+  a.appendChild(img);
+  return a;
+};
