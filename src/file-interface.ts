@@ -1,4 +1,4 @@
-import { Frontmatter, setCompleted, setDueDate } from './frontmatter';
+import { Frontmatter, setCompletedDate, setDueDateToNext } from './frontmatter';
 import type TQPlugin from './main';
 import type { Moment } from 'moment';
 import { err, ok, Result } from 'neverthrow';
@@ -244,8 +244,8 @@ export class FileInterface {
     // Uncheck the task
     lines[taskLine] = lines[taskLine].replace(/\[[xX]\]/, '[ ]');
 
-    setCompleted(frontmatter);
-    setDueDate(frontmatter);
+    setCompletedDate(frontmatter);
+    setDueDateToNext(frontmatter);
 
     frontmatter.overwrite();
 

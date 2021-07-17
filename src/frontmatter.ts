@@ -60,7 +60,7 @@ export class Frontmatter {
   };
 }
 
-export const setCompleted = (frontmatter: Frontmatter): void => {
+export const setCompletedDate = (frontmatter: Frontmatter): void => {
   // Add the current date to the 'completed' frontmatter
   const today = window.moment().format('YYYY-MM-DD');
   if (!frontmatter.contains('completed')) {
@@ -78,7 +78,7 @@ export const setCompleted = (frontmatter: Frontmatter): void => {
   }
 };
 
-export const setDueDate = (frontmatter: Frontmatter): void => {
+export const setDueDateToNext = (frontmatter: Frontmatter): void => {
   const repeatConfig = frontmatter.get('repeat');
   const repeater = RRule.fromText(repeatConfig);
   const next = repeater.after(window.moment.utc().endOf('day').toDate());
