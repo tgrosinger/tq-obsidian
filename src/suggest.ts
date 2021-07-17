@@ -60,7 +60,10 @@ class Suggest<T> {
     this.setSelectedItem(0, false);
   }
 
-  private readonly onSuggestionClick = (event: MouseEvent, el: HTMLDivElement): void => {
+  private readonly onSuggestionClick = (
+    event: MouseEvent,
+    el: HTMLDivElement,
+  ): void => {
     event.preventDefault();
 
     const item = this.suggestions.indexOf(el);
@@ -205,17 +208,26 @@ export class StaticSuggest extends TextInputSuggest<string> {
     this.suggestions = suggestions;
   }
 
-  public getSuggestions = (inputStr: string): string[] =>
-    this.suggestions.filter((val) =>
-      val.toLowerCase().contains(inputStr.toLowerCase()),
+  public getSuggestions = (inputStr: string): string[] => {
+    // Only provide suggestions on the last word of the input
+    const matchText = inputStr.split(' ').last();
+
+    return this.suggestions.filter((val) =>
+      val.toLowerCase().contains(matchText.toLowerCase()),
     );
+  };
 
   public renderSuggestion = (string: string, el: HTMLElement): void => {
     el.setText(string);
   };
 
   public selectSuggestion = (string: string): void => {
-    this.inputEl.value = string;
+    // Only replace the last word of the input with the selected suggestion
+    const startingVal = this.inputEl.value;
+    const existingValues = startingVal.split(/ +/).slice(0, -1);
+    existingValues.push(string);
+
+    this.inputEl.value = existingValues.join(' ');
     this.inputEl.trigger('input');
     this.close();
   };

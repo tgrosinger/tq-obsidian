@@ -36,7 +36,8 @@
 
   const save = () => {
     const cleanedTags = tags
-      .split(',')
+      .split(/[, ]/)
+      .filter((x) => x !== '')
       .map((tag) => tag.trim().replace('#', ''));
     store(
       description,
