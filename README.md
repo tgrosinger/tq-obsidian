@@ -58,7 +58,7 @@ Or for a more complicated example:
 | `select-tags` | String List            | Include only tasks with this tag (can be used with day/week) | All tasks |
 | `omit-tags`   | String List            | Exclude tasks with this tag (can be used with day/week)      | Omit none |
 | `overdue`     | true/false             | Include if task is overdue in relation to selected day/week  | false     |
-| `completed`   | true/false             | Include tasks which are checked                              | true      |
+| `completed`   | true/false             | Include only tasks which are checked or not checked          | All tasks |
 | `due`         | true/false             | Include tasks which have a due date                          | true      |
 | `no-due`      | true/false             | Include tasks which do not have a due date                   | true      |
 | `sort`        | "score", "due", ""     | Specify the sort order of the tasks                          | ""        |

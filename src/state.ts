@@ -5,7 +5,7 @@ const SharedStateDefaults: SharedState = {
   overdue: false,
   due: true,
   noDue: true,
-  completed: true,
+  completed: undefined,
   sort: 'score',
   group: undefined,
   selectTags: [],
@@ -18,7 +18,7 @@ export interface SharedState {
   overdue: boolean;
   due: boolean;
   noDue: boolean;
-  completed: boolean;
+  completed: boolean | undefined;
   sort: 'due' | 'score' | undefined;
   group: 'due' | 'completed' | undefined;
 
@@ -162,7 +162,9 @@ export const filtersFromState = (state: SharedState): Filter[] => {
     }
   }
 
-  if (!state.completed) {
+  if (state.completed) {
+    filters.push((task: Task) => task.checked);
+  } else if (state.completed === false) {
     filters.push((task: Task) => !task.checked);
   }
 
@@ -201,12 +203,15 @@ export const filtersFromState = (state: SharedState): Filter[] => {
 
     // Filtering select-week does not remove tasks which do not have a due date.
     if (state.overdue) {
-      filters.push((task: Task) => task.due === undefined || task.due.isBefore(weekEnd));
+      filters.push(
+        (task: Task) => task.due === undefined || task.due.isBefore(weekEnd),
+      );
     } else {
-      filters.push((task: Task) => (
+      filters.push(
+        (task: Task) =>
           task.due === undefined ||
-          task.due.isBetween(weekStart, weekEnd, undefined, '[]')
-        ));
+          task.due.isBetween(weekStart, weekEnd, undefined, '[]'),
+      );
     }
   }
 

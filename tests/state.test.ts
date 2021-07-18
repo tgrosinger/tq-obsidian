@@ -59,16 +59,21 @@ beforeAll(() => {
 });
 
 describe('when filtering tasks', () => {
-  describe('when applying a single filter', () => {
-    test('when including completed', () => {
-      const config = ['completed: true'];
-      const filtered = applyFilters([task1, task2, task3], config);
-      expect(filtered).toEqual([task1, task2, task3]);
-    });
+  describe('when filtering by completed', () => {
     test('when not including completed', () => {
       const config = ['completed: false'];
       const filtered = applyFilters([task1, task2, task3], config);
       expect(filtered).toEqual([task1]);
+    });
+    test('when only including completed', () => {
+      const config: string[] = ['completed: true'];
+      const filtered = applyFilters([task1, task2, task3], config);
+      expect(filtered).toEqual([task2, task3]);
+    });
+    test('when including either', () => {
+      const config: string[] = [];
+      const filtered = applyFilters([task1, task2, task3], config);
+      expect(filtered).toEqual([task1, task2, task3]);
     });
   });
   describe('when filtering to a single day', () => {
@@ -86,7 +91,7 @@ describe('when filtering tasks', () => {
       expect(filtered).toEqual([task1, task4]);
     });
     test('with complete and incomplete', () => {
-      const config = ['select-day: 2021-06-06', 'completed: true'];
+      const config = ['select-day: 2021-06-06'];
       const filtered = applyFilters([task1, task2, task3, task4], config);
       expect(filtered).toEqual([task1, task2, task3, task4]);
     });
@@ -100,11 +105,7 @@ describe('when filtering tasks', () => {
       expect(filtered).toEqual([task3]);
     });
     test('with two tags', () => {
-      const config = [
-        'select-day: 2021-06-06',
-        'completed: true',
-        'select-tags: [work, home]',
-      ];
+      const config = ['select-day: 2021-06-06', 'select-tags: [work, home]'];
       const filtered = applyFilters([task1, task2, task3, task4], config);
       expect(filtered).toEqual([task3, task4]);
     });
