@@ -47,6 +47,18 @@ const task6 = makeTask(3, [
   '---',
   '- [ ] incomplete with later due',
 ]);
+const task7 = makeTask(3, [
+  '---',
+  'tags: [work/meetings]',
+  '---',
+  '- [ ] incomplete with nested tag 1',
+]);
+const task8 = makeTask(3, [
+  '---',
+  'tags: [work/email]',
+  '---',
+  '- [ ] incomplete with nested tag 2',
+]);
 
 const applyFilters = (tasks: Task[], config: string[]): Task[] => {
   const state = stateFromConfig(config);
@@ -109,6 +121,11 @@ describe('when filtering tasks', () => {
       const filtered = applyFilters([task1, task2, task3, task4], config);
       expect(filtered).toEqual([task3, task4]);
     });
+    test('omitting a tag', () => {
+      const config = ['omit-tags: work', 'no-due:false'];
+      const filtered = applyFilters([task1, task2, task3, task4], config);
+      expect(filtered).toEqual([task4]);
+    });
     test('with only due', () => {
       const config = ['select-day: 2021-06-06', 'no-due: false'];
       const filtered = applyFilters([task1, task2, task3, task4], config);
@@ -164,6 +181,24 @@ describe('when filtering tasks', () => {
         config,
       );
       expect(filtered).toEqual([task6]);
+    });
+  });
+  describe('when filtering with nested tags', () => {
+    test('when using a child tag', () => {
+      const config = ['select-tags: work/email'];
+      const filtered = applyFilters(
+        [task1, task2, task3, task4, task5, task6, task7, task8],
+        config,
+      );
+      expect(filtered).toEqual([task8]);
+    });
+    test('when using a parent tag', () => {
+      const config = ['select-tags: work'];
+      const filtered = applyFilters(
+        [task1, task2, task3, task4, task5, task6, task7, task8],
+        config,
+      );
+      expect(filtered).toEqual([task3, task5, task7, task8]);
     });
   });
 });

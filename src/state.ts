@@ -172,7 +172,7 @@ export const filtersFromState = (state: SharedState): Filter[] => {
 
   if (state.selectTags && state.selectTags.length > 0) {
     filters.push((task: Task) => {
-      let tags = task.frontmatter.get('tags');
+      let tags: string | string[] = task.frontmatter.get('tags');
       if (!tags) {
         return false;
       }
@@ -180,12 +180,20 @@ export const filtersFromState = (state: SharedState): Filter[] => {
         tags = [tags];
       }
 
-      return intersection(tags, state.selectTags).length > 0;
+      // Selection tags may match nested note tags
+      // e.g. "work" matches "work/meetings"
+      for (let i = 0; i < state.selectTags.length; i++) {
+        const selectTagRe = new RegExp(`^${state.selectTags[i]}`);
+        if (tags.some((noteTag) => selectTagRe.test(noteTag))) {
+          return true;
+        }
+      }
+      return false;
     });
   }
   if (state.omitTags && state.omitTags.length > 0) {
     filters.push((task: Task) => {
-      let tags = task.frontmatter.get('tags');
+      let tags: string | string[] = task.frontmatter.get('tags');
       if (!tags) {
         return true;
       }
@@ -193,7 +201,15 @@ export const filtersFromState = (state: SharedState): Filter[] => {
         tags = [tags];
       }
 
-      return intersection(tags, state.omitTags).length === 0;
+      // Selection tags may match nested note tags
+      // e.g. "work" matches "work/meetings"
+      for (let i = 0; i < state.omitTags.length; i++) {
+        const omitTagRe = new RegExp(`^${state.omitTags[i]}`);
+        if (tags.some((noteTag) => omitTagRe.test(noteTag))) {
+          return false;
+        }
+      }
+      return true;
     });
   }
 

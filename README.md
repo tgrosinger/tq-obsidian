@@ -64,6 +64,10 @@ Or for a more complicated example:
 | `sort`        | "score", "due", ""     | Specify the sort order of the tasks                          | ""        |
 | `group`       | "due", "completed", "" | Specify how tasks should be grouped in the list              | ""        |
 
+Note that `select-tags` and `omit-tags` support nested tags. In other words,
+`select-tags: work` will match notes tagged with `work` as well as
+`work/meetings`
+
 ## Obsidian Links and Shortcuts
 
 You may use Obsidian links to interact with tq from within or outside of the app.
