@@ -70,6 +70,14 @@ export default class TQPlugin extends Plugin {
     );
 
     this.registerEvent(
+      this.app.vault.on('create', (file) => {
+        if (file.path.startsWith(this.settings.TasksDir)) {
+          this.fileInterface.handleTaskModified(file);
+        }
+      }),
+    );
+
+    this.registerEvent(
       this.app.vault.on('modify', (file) => {
         if (file.path.startsWith(this.settings.TasksDir)) {
           this.fileInterface.handleTaskModified(file);
