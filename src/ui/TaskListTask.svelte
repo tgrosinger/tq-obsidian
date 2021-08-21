@@ -79,6 +79,7 @@
 
     <input
       type="checkbox"
+      class="task-list-item-checkbox"
       bind:checked={task.checked}
       on:change={toggleChecked}
     />
