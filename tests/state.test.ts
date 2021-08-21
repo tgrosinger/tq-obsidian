@@ -154,7 +154,7 @@ describe('when filtering tasks', () => {
         [task1, task2, task3, task4, task5, task6],
         config,
       );
-      expect(filtered).toEqual([task1, task2, task3, task4, task5, task6]);
+      expect(filtered).toEqual([task1, task2, task4, task5, task6]);
     });
     test('for a specific week', () => {
       const config = ['select-week: 2021-06-14', 'overdue: true'];

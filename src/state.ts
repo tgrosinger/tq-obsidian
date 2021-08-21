@@ -151,7 +151,7 @@ export const filtersFromState = (state: SharedState): Filter[] => {
         (task: Task) =>
           task.due === undefined ||
           task.due.format('YYYY-MM-DD') === state.selectDay ||
-          task.due.isBefore(selectedDay),
+          (task.due.isBefore(selectedDay) && !task.checked),
       );
     } else {
       filters.push(
