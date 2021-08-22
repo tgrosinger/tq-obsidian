@@ -1,5 +1,4 @@
 import type { Task } from './file-interface';
-import { intersection } from 'lodash';
 
 const SharedStateDefaults: SharedState = {
   overdue: false,
@@ -142,6 +141,8 @@ export const filtersFromState = (state: SharedState): Filter[] => {
   } else {
     // Filter all (probably an error)
   }
+
+  filters.push((task: Task) => task.hideUntil === undefined);
 
   if (state.selectDay && state.selectDay.length > 0) {
     // Filtering select-day does not remove tasks which do not have a due date.

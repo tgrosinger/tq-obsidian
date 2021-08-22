@@ -11,6 +11,7 @@ export interface Task {
   frontmatter: Frontmatter;
   line: string;
   checked: boolean;
+  hideUntil: Moment | undefined;
   due: Moment | undefined;
   urgent: boolean;
   important: boolean;
@@ -136,6 +137,14 @@ export class TaskCache {
     const lines = contents.split('\n');
     const lineIdx = metadata.listItems[0].position.start.line;
     const frontmatter = new Frontmatter(lines);
+
+    const hideUntil = frontmatter.get('hide-until');
+    if (hideUntil && window.moment(hideUntil).isSameOrBefore(window.moment())) {
+      // If we are past the hide date, then remove it
+      this.plugin.fileInterface.removeHideUntil(file, this.app.vault);
+      return err('task modified during loading');
+    }
+
     const due = frontmatter.get('due');
     return ok({
       file,
@@ -143,6 +152,7 @@ export class TaskCache {
       frontmatter,
       line: lines[lineIdx].replace(/- \[[xX ]\]/, ''),
       checked: ['x', 'X'].contains(metadata.listItems[0].task),
+      hideUntil: hideUntil ? window.moment(hideUntil).endOf('day') : undefined,
       due: due ? window.moment(due).endOf('day') : undefined,
       important: frontmatter.get('important'),
       urgent: frontmatter.get('urgent'),
@@ -172,6 +182,24 @@ export class FileInterface {
       this.processRepeating(tfile.path, lines),
     );
   };
+
+  public readonly removeHideUntil = async (
+    file: TFile,
+    vault: Vault,
+  ): Promise<void> =>
+    withFileContents(file, vault, (lines: string[]): boolean => {
+      let frontmatter: Frontmatter;
+      try {
+        frontmatter = new Frontmatter(lines);
+      } catch (error) {
+        console.debug(error);
+        return false;
+      }
+
+      frontmatter.remove('hide-until');
+      frontmatter.overwrite();
+      return true;
+    });
 
   public readonly updateTaskDue = async (
     file: TFile,
@@ -256,6 +284,7 @@ export class FileInterface {
   public readonly storeNewTask = async (
     description: string,
     due: string,
+    hideUntil: string,
     repeat: string,
     tags: string[],
     urgent: boolean,
@@ -267,6 +296,7 @@ export class FileInterface {
     const data = this.formatNewTask(
       description,
       due,
+      hideUntil,
       repeat,
       tags,
       urgent,
@@ -285,6 +315,7 @@ export class FileInterface {
   private readonly formatNewTask = (
     description: string,
     due: string,
+    hideUntil: string,
     repeat: string,
     tags: string[],
     urgent: boolean,
@@ -293,6 +324,9 @@ export class FileInterface {
     const frontMatter = [];
     if (due && due !== '') {
       frontMatter.push(`due: '${due}'`);
+    }
+    if (hideUntil && hideUntil !== '') {
+      frontMatter.push(`hide-until: '${hideUntil}'`);
     }
     if (repeat && repeat !== '') {
       frontMatter.push('repeat: ' + repeat);

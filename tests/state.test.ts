@@ -6,6 +6,7 @@ import moment from 'moment';
 
 const makeTask = (lineIdx: number, md: string[]): Task => {
   const frontmatter = new Frontmatter(md);
+  const hideUntil = frontmatter.get('hide-until');
   const due = frontmatter.get('due');
   return {
     file: undefined,
@@ -13,6 +14,7 @@ const makeTask = (lineIdx: number, md: string[]): Task => {
     frontmatter,
     line: md[lineIdx].replace(/- \[[x ]\]/, ''),
     checked: md[lineIdx].startsWith('- [x]'),
+    hideUntil: hideUntil ? moment(hideUntil).endOf('day') : undefined,
     due: due ? moment(due).endOf('day') : undefined,
     urgent: false, // TODO: Include in tests
     important: false, // TODO: Include in tests

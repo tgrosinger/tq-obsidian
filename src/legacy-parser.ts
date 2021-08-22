@@ -25,6 +25,7 @@ export const convertLegacyTask = (
   fileInterface.storeNewTask(
     parts.description,
     due,
+    undefined,
     parts.repeat,
     [],
     false,

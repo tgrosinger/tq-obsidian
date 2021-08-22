@@ -9,6 +9,7 @@
   export let store: (
     description: string,
     due: string,
+    hideUntil: string,
     repeat: string,
     tags: string[],
     urgent: boolean,
@@ -29,6 +30,7 @@
   let repeats = false;
   let repeatConfig = '';
   let due = '';
+  let hideUntil = '';
   let showDuePicker = false;
   let tags = '';
   let urgent = false;
@@ -42,6 +44,7 @@
     store(
       description,
       due,
+      hideUntil,
       repeats ? repeatConfig : '',
       cleanedTags,
       urgent,

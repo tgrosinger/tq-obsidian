@@ -128,6 +128,7 @@ export default class TQPlugin extends Plugin {
       await this.fileInterface.storeNewTask(
         params.task,
         params.due,
+        params.hideUntil,
         params.repeat,
         params.tags ? params.tags.split(',') : [],
         false,

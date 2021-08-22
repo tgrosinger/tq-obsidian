@@ -21,6 +21,10 @@ export class Frontmatter {
   public readonly set = (key: string, value: any): void =>
     (this.contents[key] = value);
 
+  public readonly remove = (key: string): void => {
+    delete this.contents[key];
+  };
+
   public readonly overwrite = (): void => {
     const replacer = (k: string, v: any): any =>
       k === 'due' ? window.moment(v).endOf('day').format('YYYY-MM-DD') : v;
