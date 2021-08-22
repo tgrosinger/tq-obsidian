@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Task } from '../file-interface';
-  import { chevronDown, externalLink, overdueAlert } from '../graphics';
+  import { chevronDown, externalLink, hide, overdueAlert } from '../graphics';
   import { DuePickerModal, RepeatPickerModal } from '../modals';
   import type TQPlugin from '../main';
   import type { Moment } from 'moment';
@@ -9,6 +9,8 @@
   import { MarkdownRenderer } from 'obsidian';
   import { afterUpdate, onMount } from 'svelte';
   import TaskPriorityStripe from './TaskPriorityStripe.svelte';
+  import { createPopper } from '@popperjs/core/lib/popper-lite';
+  import DatePicker from './DatePicker.svelte';
 
   export let plugin: TQPlugin;
   export let task: Task;
@@ -71,6 +73,28 @@
       );
     }).open();
   };
+
+  const hideTask = (d: Moment) => {
+    console.log(`Hiding until: ${d.format('YYYY-MM-DD')}`);
+  };
+
+  // TODO: Move somewhere else so this can be reused
+  const showDatePicker = (
+    anchor: HTMLElement,
+    callback: (d: Moment) => void,
+  ): (() => void) => {
+    return () => {
+      const el = createEl('div');
+      const datePicker = new DatePicker({
+        target: el,
+        props: {},
+      });
+
+      console.log(anchor);
+      console.log(el);
+      const popper = createPopper(anchor, el, {});
+    };
+  };
 </script>
 
 <div class={rootClasses}>
@@ -85,18 +109,29 @@
     <span class="task-line" bind:this={lineEl} />
 
     {#if overdue}
-      <span class="overdue-alert" title="Due {task.due.format('YYYY-MM-DD')}">
+      <span
+        class="overdue-alert action-button"
+        title="Due {task.due.format('YYYY-MM-DD')}"
+      >
         {@html overdueAlert}
       </span>
     {/if}
 
-    <span on:click={viewSource} title="View note">
+    <span
+      title="Hide task"
+      on:click={showDatePicker(undefined, hideTask)}
+      class="action-button"
+    >
+      {@html hide}
+    </span>
+
+    <span on:click={viewSource} title="View note" class="action-button">
       {@html externalLink}
     </span>
 
     {#if !expanded}
       <span
-        class="expand-chevron"
+        class="expand-chevron action-button"
         on:click={toggleExpanded}
         title="See details"
       >
@@ -104,7 +139,7 @@
       </span>
     {:else}
       <span
-        class="expand-chevron rotated-180"
+        class="expand-chevron rotated-180 action-button"
         on:click={toggleExpanded}
         title="Hide details"
       >
@@ -167,13 +202,12 @@
     margin: 10px 0;
   }
 
-  .overdue-alert {
-    padding: 0 10px;
+  .action-button {
+    margin: 0 5px;
   }
 
   .expand-chevron {
     display: inline-block;
-    padding: 0 10px;
   }
 
   .rotated-180 {
