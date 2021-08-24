@@ -1,7 +1,7 @@
 <script lang="ts">
   import ButtonGroup from './ButtonGroup.svelte';
   import WeekDaysOfMonthSelector from './WeekDaysOfMonthSelector.svelte';
-  import { RepeatAdapter } from 'src/repeat';
+  import { RepeatAdapter } from 'svelte/repeat';
   import RRule, { Frequency } from 'rrule';
 
   // Repetition types:

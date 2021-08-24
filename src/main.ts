@@ -1,19 +1,18 @@
-import { FileInterface, TaskCache } from './file-interface';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { FileInterface, Task, TaskCache } from './file-interface';
 import { buyMeACoffee, paypal } from './graphics';
-import { convertLegacyTask } from './legacy-parser';
 import { CreateTaskModal } from './modals';
 import { ISettings, settingsWithDefaults } from './settings';
-import { stateFromConfig } from './state';
-import TasksUI from './ui/TasksUI.svelte';
+import { parseTaskListConfig } from './state';
 import {
   MarkdownPostProcessorContext,
-  MarkdownView,
   Notice,
   Plugin,
   PluginSettingTab,
   Setting,
 } from 'obsidian';
-import { writable } from 'svelte/store';
+import { TasksUI } from './ui/TasksUI';
 
 export default class TQPlugin extends Plugin {
   public settings: ISettings;
@@ -39,18 +38,6 @@ export default class TQPlugin extends Plugin {
       name: 'Create Task',
       callback: () => {
         new CreateTaskModal(this.app, this).open();
-      },
-    });
-
-    this.addCommand({
-      id: 'convert-task',
-      name: 'Convert Task',
-      checkCallback: (checking: boolean): boolean | void => {
-        const activeLeaf = this.app.workspace.getActiveViewOfType(MarkdownView);
-        if (!activeLeaf) {
-          return false;
-        }
-        return convertLegacyTask(checking, activeLeaf, this.fileInterface);
       },
     });
 
@@ -139,6 +126,19 @@ export default class TQPlugin extends Plugin {
     });
   }
 
+  public useTaskState(): Task[] {
+    const [state, setState] = React.useState<Task[]>(this.taskCache.tasks);
+
+    React.useEffect(() => {
+      this.taskCache.stateReceivers.push(setState);
+      return () => {
+        this.taskCache.stateReceivers.remove(setState);
+      };
+    }, [this.taskCache.tasks]);
+
+    return state;
+  }
+
   private async loadSettings(): Promise<void> {
     this.settings = settingsWithDefaults(await this.loadData());
   }
@@ -148,14 +148,13 @@ export default class TQPlugin extends Plugin {
     el: HTMLElement,
     ctx: MarkdownPostProcessorContext,
   ): void => {
-    new TasksUI({
-      target: el,
-      props: {
+    ReactDOM.render(
+      React.createElement(TasksUI, {
         plugin: this,
-        view: null,
-        state: writable(stateFromConfig(source.split('\n'))),
-      },
-    });
+        config: parseTaskListConfig(source.split('\n')),
+      }),
+      el,
+    );
   };
 }
 

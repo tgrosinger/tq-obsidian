@@ -1,6 +1,6 @@
 import type { Task } from './file-interface';
 
-const SharedStateDefaults: SharedState = {
+const TaskListConfigDefaults: TaskListConfig = {
   overdue: false,
   due: true,
   noDue: true,
@@ -13,7 +13,7 @@ const SharedStateDefaults: SharedState = {
   selectWeek: undefined,
 };
 
-export interface SharedState {
+export interface TaskListConfig {
   overdue: boolean;
   due: boolean;
   noDue: boolean;
@@ -27,15 +27,15 @@ export interface SharedState {
   selectWeek: string | undefined;
 }
 
-export const stateWithDefaults = (
-  props: Partial<SharedState>,
-): SharedState => ({
-  ...SharedStateDefaults,
+export const taskListConfigWithDefaults = (
+  props: Partial<TaskListConfig>,
+): TaskListConfig => ({
+  ...TaskListConfigDefaults,
   ...props,
 });
 
-export const stateFromConfig = (lines: string[]): SharedState => {
-  const state = stateWithDefaults({});
+export const parseTaskListConfig = (lines: string[]): TaskListConfig => {
+  const state = taskListConfigWithDefaults({});
   lines.forEach((line) => {
     if (line === '') {
       return;
@@ -125,7 +125,7 @@ export const stateFromConfig = (lines: string[]): SharedState => {
 };
 
 export type Filter = (task: Task) => boolean;
-export const filtersFromState = (state: SharedState): Filter[] => {
+export const filtersFromConfig = (state: TaskListConfig): Filter[] => {
   const filters = [];
 
   // Cheap and bulky comparisons first

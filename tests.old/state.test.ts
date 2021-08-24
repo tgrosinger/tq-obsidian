@@ -1,6 +1,6 @@
 import type { Task } from '../src/file-interface';
 import { Frontmatter } from '../src/frontmatter';
-import { filtersFromState, stateFromConfig } from '../src/state';
+import { filtersFromConfig, parseTaskListConfig } from '../src/state';
 import { every, filter } from 'lodash';
 import moment from 'moment';
 
@@ -63,8 +63,8 @@ const task8 = makeTask(3, [
 ]);
 
 const applyFilters = (tasks: Task[], config: string[]): Task[] => {
-  const state = stateFromConfig(config);
-  const allFilters = filtersFromState(state);
+  const state = parseTaskListConfig(config);
+  const allFilters = filtersFromConfig(state);
   return filter(tasks, (t) => every(allFilters, (f) => f(t)));
 };
 

@@ -1,56 +1,152 @@
 import { Frontmatter, setCompletedDate, setDueDateToNext } from './frontmatter';
 import type TQPlugin from './main';
 import type { Moment } from 'moment';
-import { err, ok, Result } from 'neverthrow';
 import { App, Notice, TAbstractFile, TFile, Vault } from 'obsidian';
-import { Writable, writable } from 'svelte/store';
+import React from 'react';
 
-export interface Task {
-  file: TFile;
-  md: string;
-  frontmatter: Frontmatter;
-  line: string;
-  checked: boolean;
-  hideUntil: Moment | undefined;
-  due: Moment | undefined;
-  urgent: boolean;
-  important: boolean;
-}
+export class Task {
+  public file: TFile;
+  public md: string;
+  public frontmatter: Frontmatter;
+  public line: string;
+  public checked: boolean;
+  public hideUntil: Moment | undefined;
+  public due: Moment | undefined;
+  public urgent: boolean;
+  public important: boolean;
 
-export const CalcTaskScore = (task: Task): number => {
-  // Factors:
-  // - Days overdue (current date - due date)
-  // - Days until due (due date - current date)
-  // - Priority
-  // - Urgency
-  // - How long ago it was created (more recent task are more important)
+  private plugin: TQPlugin;
 
-  let score = 1;
-  if (task.checked) {
-    return score;
-  }
+  constructor(file: TFile, contents: string, plugin: TQPlugin) {
+    this.file = file;
+    this.plugin = plugin;
+    const metadata = plugin.app.metadataCache.getFileCache(file);
 
-  if (task.due) {
-    const untilDue = task.due.diff(window.moment(), 'days');
-    if (untilDue > 0) {
-      // Upcoming tasks use 1/(days until due)
-      score *= 1 / untilDue;
-    } else {
-      // negative value indicates amount over-due
-      // Overdue tasks use (days overdue)/2
-      score *= untilDue / 2;
+    if (
+      !metadata.listItems ||
+      metadata.listItems.length < 1 ||
+      metadata.listItems[0].task === undefined
+    ) {
+      throw 'tq: No task found in task file ' + file.path;
     }
+
+    const lines = contents.split('\n');
+    const lineIdx = metadata.listItems[0].position.start.line;
+    const frontmatter = new Frontmatter(lines);
+
+    const hideUntil = frontmatter.get('hide-until');
+    if (hideUntil && window.moment(hideUntil).isSameOrBefore(window.moment())) {
+      // If we are past the hide date, then remove it
+      this.removeHideUntil();
+      throw 'task modified during loading';
+    }
+
+    const due = frontmatter.get('due');
+    this.md = contents;
+    this.frontmatter = frontmatter;
+    this.line = lines[lineIdx].replace(/- \[[xX ]\]/, '');
+    this.checked = ['x', 'X'].contains(metadata.listItems[0].task);
+    this.hideUntil = hideUntil
+      ? window.moment(hideUntil).endOf('day')
+      : undefined;
+    this.due = due ? window.moment(due).endOf('day') : undefined;
+    this.important = frontmatter.get('important');
+    this.urgent = frontmatter.get('urgent');
   }
 
-  if (task.urgent) {
-    score *= 2;
-  }
-  if (task.important) {
-    score *= 1.5;
-  }
+  // setChecked will update the task file to the state represented in this
+  // task object. The task object will not be modified, though the modifiction
+  // of the file will trigger that task to be reloaded and the UI to be
+  // rerendered.
+  public readonly setChecked = async (checked: boolean): Promise<void> => {
+    if (this.checked === checked) {
+      return; // No action required
+    }
+    this.checked = checked;
 
-  return score;
-};
+    return withFileContents(
+      this.file,
+      this.plugin.app.vault,
+      (lines): boolean => {
+        const re = this.checked ? /^- \[[ ]\]/ : /^- \[[xX]\]/;
+        const newValue = this.checked ? '- [x]' : '- [ ]';
+
+        // Look for the task and check status
+        const taskLine = lines.findIndex((line) => re.test(line));
+        if (taskLine < 0) {
+          console.warn(
+            'tq: Unable to find a task line to toggle in file ' +
+              this.file.path,
+          );
+          return false;
+        }
+
+        lines[taskLine] = lines[taskLine].replace(re, newValue);
+
+        // We update this here rather than waiting for the file modified handler
+        // so that the file is only updated once, rather than twice in rapid
+        // succession.
+        this.plugin.fileInterface.processRepeating(this.file.path, lines);
+
+        return true;
+      },
+    );
+  };
+
+  public readonly calcTaskScore = (): number => {
+    // Factors:
+    // - Days overdue (current date - due date)
+    // - Days until due (due date - current date)
+    // - Priority
+    // - Urgency
+    // - How long ago it was created (more recent task are more important)
+
+    let score = 1;
+    if (this.checked) {
+      return score;
+    }
+
+    if (this.due) {
+      const untilDue = this.due.diff(window.moment(), 'days');
+      if (untilDue > 0) {
+        // Upcoming tasks use 1/(days until due)
+        score *= 1 / untilDue;
+      } else {
+        // negative value indicates amount over-due
+        // Overdue tasks use (days overdue)/2
+        score *= untilDue / 2;
+      }
+    }
+
+    if (this.urgent) {
+      score *= 2;
+    }
+    if (this.important) {
+      score *= 1.5;
+    }
+
+    return score;
+  };
+
+  private readonly removeHideUntil = async (): Promise<void> =>
+    withFileContents(
+      this.file,
+      this.plugin.app.vault,
+      (lines: string[]): boolean => {
+        let frontmatter: Frontmatter;
+        try {
+          frontmatter = new Frontmatter(lines);
+        } catch (error) {
+          console.debug(error);
+          return false;
+        }
+
+        frontmatter.remove('hide-until');
+        frontmatter.overwrite();
+        return true;
+      },
+    );
+}
 
 export type FilePath = string;
 
@@ -60,102 +156,40 @@ export type FilePath = string;
  * automatically reflected in the UI.
  */
 export class TaskCache {
-  public tasks: Writable<Record<FilePath, Task>>;
+  public tasks: Task[];
+  public stateReceivers: React.Dispatch<React.SetStateAction<Task[]>>[];
 
   private readonly plugin: TQPlugin;
   private readonly app: App;
 
   public constructor(plugin: TQPlugin, app: App) {
+    this.tasks = [];
+    this.stateReceivers = [];
     this.plugin = plugin;
     this.app = app;
-
-    this.tasks = writable({});
   }
 
-  // toggleChecked will update the task file to the state represented in this
-  // task object. The task object will not be modified, though the modifiction
-  // of the file will trigger that task to be reloaded and the UI to be
-  // rerendered.
-  public readonly toggleChecked = async (task: Task): Promise<void> =>
-    withFileContents(task.file, this.app.vault, (lines): boolean => {
-      const re = task.checked ? /^- \[[ ]\]/ : /^- \[[xX]\]/;
-      const newValue = task.checked ? '- [x]' : '- [ ]';
-
-      // Look for the task and check status
-      const taskLine = lines.findIndex((line) => re.test(line));
-      if (taskLine < 0) {
-        console.warn(
-          'tq: Unable to find a task line to toggle in file ' + task.file.path,
-        );
-        return false;
-      }
-
-      lines[taskLine] = lines[taskLine].replace(re, newValue);
-
-      // We update this here rather than waiting for the file modified handler
-      // so that the file is only updated once, rather than twice in rapid
-      // succession.
-      this.plugin.fileInterface.processRepeating(task.file.path, lines);
-
-      return true;
-    });
-
   public readonly handleTaskModified = async (file: TFile): Promise<void> => {
-    (await this.loadTask(file)).match(
-      (newTask) => {
-        this.tasks.update((tasks): Record<FilePath, Task> => {
-          tasks[newTask.file.path] = newTask;
-          return tasks;
-        });
-      },
-      (e) => {
-        console.error(e);
-      },
-    );
+    const contents = await this.app.vault.read(file);
+    const metadata = this.app.metadataCache.getFileCache(file);
+    try {
+      const newTask = new Task(file, contents, this.plugin);
+      this.tasks = this.tasks.filter((task) => task.file.path !== file.path);
+      this.tasks.push(newTask);
+      this.notify();
+    } catch (e) {
+      console.debug('tq: Unable to load task: ' + e);
+    }
   };
 
   public readonly handleTaskDeleted = (path: string): void => {
-    this.tasks.update((tasks): Record<FilePath, Task> => {
-      delete tasks[path];
-      return tasks;
-    });
+    this.tasks = this.tasks.filter((task) => task.file.path !== path);
+    this.notify();
   };
 
-  private readonly loadTask = async (
-    file: TFile,
-  ): Promise<Result<Task, string>> => {
-    const metadata = this.app.metadataCache.getFileCache(file);
-    if (
-      !metadata.listItems ||
-      metadata.listItems.length < 1 ||
-      metadata.listItems[0].task === undefined
-    ) {
-      return err('tq: No task found in task file ' + file.path);
-    }
-
-    const contents = await this.app.vault.read(file);
-    const lines = contents.split('\n');
-    const lineIdx = metadata.listItems[0].position.start.line;
-    const frontmatter = new Frontmatter(lines);
-
-    const hideUntil = frontmatter.get('hide-until');
-    if (hideUntil && window.moment(hideUntil).isSameOrBefore(window.moment())) {
-      // If we are past the hide date, then remove it
-      this.plugin.fileInterface.removeHideUntil(file, this.app.vault);
-      return err('task modified during loading');
-    }
-
-    const due = frontmatter.get('due');
-    return ok({
-      file,
-      md: contents,
-      frontmatter,
-      line: lines[lineIdx].replace(/- \[[xX ]\]/, ''),
-      checked: ['x', 'X'].contains(metadata.listItems[0].task),
-      hideUntil: hideUntil ? window.moment(hideUntil).endOf('day') : undefined,
-      due: due ? window.moment(due).endOf('day') : undefined,
-      important: frontmatter.get('important'),
-      urgent: frontmatter.get('urgent'),
+  private readonly notify = () => {
+    this.stateReceivers.forEach((fn) => {
+      fn(this.tasks);
     });
   };
 }
@@ -182,24 +216,6 @@ export class FileInterface {
       this.processRepeating(tfile.path, lines),
     );
   };
-
-  public readonly removeHideUntil = async (
-    file: TFile,
-    vault: Vault,
-  ): Promise<void> =>
-    withFileContents(file, vault, (lines: string[]): boolean => {
-      let frontmatter: Frontmatter;
-      try {
-        frontmatter = new Frontmatter(lines);
-      } catch (error) {
-        console.debug(error);
-        return false;
-      }
-
-      frontmatter.remove('hide-until');
-      frontmatter.overwrite();
-      return true;
-    });
 
   public readonly updateTaskDue = async (
     file: TFile,

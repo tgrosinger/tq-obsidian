@@ -1,9 +1,9 @@
 import type TQPlugin from './main';
-import CreateTaskUI from './ui/CreateTaskUI.svelte';
-import DuePicker from './ui/DuePicker.svelte';
-import RepeatPicker from './ui/RepeatPicker.svelte';
 import type { Moment } from 'moment';
 import { App, Modal } from 'obsidian';
+import ReactDOM from 'react-dom';
+import React from 'react';
+import { CreateTask } from './ui/CreateTask';
 
 export class CreateTaskModal extends Modal {
   private readonly plugin: TQPlugin;
@@ -16,14 +16,14 @@ export class CreateTaskModal extends Modal {
   public onOpen = (): void => {
     const { titleEl, contentEl } = this;
     titleEl.setText('Create New Task');
-    new CreateTaskUI({
-      target: contentEl,
-      props: {
+
+    ReactDOM.render(
+      React.createElement(CreateTask, {
         close: () => this.close(),
-        store: this.plugin.fileInterface.storeNewTask,
-        app: this.app,
-      },
-    });
+        plugin: this.plugin,
+      }),
+      contentEl,
+    );
   };
 
   public onClose = (): void => {
@@ -46,6 +46,7 @@ export class DuePickerModal extends Modal {
   public onOpen = (): void => {
     const { titleEl, contentEl } = this;
     titleEl.setText('Set Due Date');
+    /*
     new DuePicker({
       target: contentEl,
       props: {
@@ -54,6 +55,7 @@ export class DuePickerModal extends Modal {
         startDate: this.startDate,
       },
     });
+    */
   };
 
   public onClose = (): void => {
@@ -80,6 +82,7 @@ export class RepeatPickerModal extends Modal {
   public onOpen = (): void => {
     const { titleEl, contentEl } = this;
     titleEl.setText('Set Repeat Config');
+    /*
     new RepeatPicker({
       target: contentEl,
       props: {
@@ -89,6 +92,7 @@ export class RepeatPickerModal extends Modal {
         repeats: this.repeatConfig !== 'none',
       },
     });
+    */
   };
 
   public onClose = (): void => {

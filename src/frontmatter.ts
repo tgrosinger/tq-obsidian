@@ -1,5 +1,4 @@
 import { dump, load } from 'js-yaml';
-import RRule from 'rrule';
 
 export class Frontmatter {
   // TODO: Use index signatures?
@@ -92,9 +91,12 @@ export const setCompletedDate = (frontmatter: Frontmatter): void => {
 };
 
 export const setDueDateToNext = (frontmatter: Frontmatter): void => {
+  // TODO
+  /*
   const repeatConfig = frontmatter.get('repeat');
   const repeater = RRule.fromText(repeatConfig);
   const next = repeater.after(window.moment.utc().endOf('day').toDate());
   const due = window.moment(next).startOf('day').toDate();
   frontmatter.set('due', due);
+  */
 };
