@@ -1,6 +1,7 @@
 import React from 'react';
 import TQPlugin from '../main';
 import styled from 'styled-components';
+import { RepeatPicker } from './repeat/RepeatPicker';
 
 const taskPlaceholders = [
   'Feed the chickens',
@@ -115,6 +116,12 @@ export const CreateTask: React.FC<{
           />
         </label>
       </div>
+      <RepeatPicker
+        repeats={repeats}
+        setRepeats={setRepeats}
+        repeatConfig={repeatConfig}
+        setRepeatConfig={setRepeatConfig}
+      />
       <div>
         <label>
           <input
