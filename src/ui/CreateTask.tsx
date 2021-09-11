@@ -2,6 +2,8 @@ import React from 'react';
 import TQPlugin from '../main';
 import styled from 'styled-components';
 import { RepeatPicker } from './repeat/RepeatPicker';
+import RRule from 'rrule';
+import { Repeater } from '../rrule-adapter';
 
 const taskPlaceholders = [
   'Feed the chickens',
@@ -41,8 +43,7 @@ export const CreateTask: React.FC<{
   const [description, setDescription] = React.useState('');
   const [due, setDue] = React.useState('');
   const [hideUntil, setHideUntil] = React.useState('');
-  const [repeats, setRepeats] = React.useState(false);
-  const [repeatConfig, setRepeatConfig] = React.useState('');
+  const [repeater, setRepeater] = React.useState<Repeater>();
   const [tags, setTags] = React.useState('');
   const [important, setImportant] = React.useState(false);
   const [urgent, setUrgent] = React.useState(false);
@@ -56,7 +57,7 @@ export const CreateTask: React.FC<{
       description,
       due,
       hideUntil,
-      repeats ? repeatConfig : '',
+      repeater.toString(),
       cleanedTags,
       urgent,
       important,
@@ -116,12 +117,7 @@ export const CreateTask: React.FC<{
           />
         </label>
       </div>
-      <RepeatPicker
-        repeats={repeats}
-        setRepeats={setRepeats}
-        repeatConfig={repeatConfig}
-        setRepeatConfig={setRepeatConfig}
-      />
+      <RepeatPicker repeater={repeater} setRepeater={setRepeater} />
       <div>
         <label>
           <input

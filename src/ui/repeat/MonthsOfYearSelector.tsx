@@ -1,5 +1,6 @@
 import React from 'react';
 import RRule, { Frequency } from 'rrule';
+import { Repeater } from '../../rrule-adapter';
 
 const months = [
   { id: 1, text: 'Jan' },
@@ -17,25 +18,29 @@ const months = [
 ];
 
 export const MonthsOfYearSelector: React.FC<{
-  rrule: RRule;
-  setRepeatConfig: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ rrule, setRepeatConfig }): JSX.Element => {
-  if (!rrule || rrule.origOptions.freq !== Frequency.YEARLY) {
+  repeater: Repeater;
+  setRepeater: React.Dispatch<React.SetStateAction<Repeater>>;
+}> = (props): JSX.Element => {
+  if (
+    !props.repeater ||
+    !props.repeater.rrule ||
+    props.repeater.rrule.origOptions.freq !== Frequency.YEARLY
+  ) {
     return null;
   }
 
   const toggleSelected = (id: number) => {
-    const moy = getMonthsOfYear(rrule);
+    const moy = getMonthsOfYear(props.repeater.rrule);
     if (moy.includes(id)) {
-      setRepeatConfig(
+      props.setRepeater(
         withMonthsOfYear(
           moy.filter((n) => n !== id),
-          rrule,
+          props.repeater,
         ),
       );
     } else {
       moy.push(id);
-      setRepeatConfig(withMonthsOfYear(moy, rrule));
+      props.setRepeater(withMonthsOfYear(moy, props.repeater));
     }
   };
 
@@ -45,7 +50,9 @@ export const MonthsOfYearSelector: React.FC<{
         return (
           <button
             key={id}
-            className={isMonthSelected(id, rrule) ? 'mod-cta' : ''}
+            className={
+              isMonthSelected(id, props.repeater.rrule) ? 'mod-cta' : ''
+            }
             onClick={() => {
               toggleSelected(id);
             }}
@@ -69,19 +76,14 @@ const getMonthsOfYear = (rrule: RRule): number[] => {
   return months;
 };
 
-const withMonthsOfYear = (ids: number[], rrule: RRule): string => {
-  rrule.origOptions.bymonth = ids;
-  rrule.options.bymonth = rrule.origOptions.bymonth;
+const withMonthsOfYear = (ids: number[], repeater: Repeater): Repeater =>
+  repeater.modify((rrule: RRule) => {
+    rrule.origOptions.bymonth = ids;
+    rrule.options.bymonth = rrule.origOptions.bymonth;
 
-  // TODO: There's a bug if all months are deselected
-
-  // TODO: Sort
-
-  return toString(rrule);
-};
+    // TODO: There's a bug if all months are deselected
+    // TODO: Sort
+  });
 
 const isMonthSelected = (id: number, rrule: RRule): boolean =>
   getMonthsOfYear(rrule).includes(id);
-
-const toString = (rrule: RRule): string =>
-  rrule.isFullyConvertibleToText() ? rrule.toText() : rrule.toString();

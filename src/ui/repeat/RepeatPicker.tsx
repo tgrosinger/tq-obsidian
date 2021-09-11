@@ -1,9 +1,9 @@
 import React from 'react';
-import RRule, { Frequency } from 'rrule';
 import { DaysOfWeekSelector } from './DaysOfWeekSelector';
 import { DaysOfMonthSelector } from './DaysOfMonthSelector';
 import { MonthsOfYearSelector } from './MonthsOfYearSelector';
 import { FrequencySelector } from './FrequencySelector';
+import { NewDefaultRepeater, Repeater } from '../../rrule-adapter';
 
 // Repetition types:
 // - Daily with interval
@@ -22,29 +22,28 @@ import { FrequencySelector } from './FrequencySelector';
 // - Lots more examples: https://www.kanzaki.com/docs/ical/rrule.html
 
 export const RepeatPicker: React.FC<{
-  repeats: boolean;
-  setRepeats: React.Dispatch<React.SetStateAction<boolean>>;
-  repeatConfig: string;
-  setRepeatConfig: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ repeats, setRepeats, repeatConfig, setRepeatConfig }): JSX.Element => {
-  // TODO: Rather than RepeatAdapter, use a series of functions which take a repeat config and return a modified repeat config.
-  // Individual action controls could be sub-components?
-
-  const [rrule, setRrule] = React.useState<RRule>();
-  React.useEffect(() => {
-    if (repeatConfig === '') {
-      setRrule(new RRule({ freq: Frequency.WEEKLY, interval: 1 }));
-    } else {
-      setRrule(RRule.fromText(repeatConfig));
-    }
-  }, [repeatConfig]);
-
+  repeater: Repeater;
+  setRepeater: React.Dispatch<React.SetStateAction<Repeater>>;
+}> = (props): JSX.Element => {
+  // TODO: Add interval selector ("Every 3 days", "Every 3 weeks")
   const repeatSelector = (
     <>
-      <FrequencySelector rrule={rrule} setRepeatConfig={setRepeatConfig} />
-      <DaysOfWeekSelector rrule={rrule} setRepeatConfig={setRepeatConfig} />
-      <MonthsOfYearSelector rrule={rrule} setRepeatConfig={setRepeatConfig} />
-      <DaysOfMonthSelector rrule={rrule} setRepeatConfig={setRepeatConfig} />
+      <FrequencySelector
+        repeater={props.repeater}
+        setRepeater={props.setRepeater}
+      />
+      <DaysOfWeekSelector
+        repeater={props.repeater}
+        setRepeater={props.setRepeater}
+      />
+      <MonthsOfYearSelector
+        repeater={props.repeater}
+        setRepeater={props.setRepeater}
+      />
+      <DaysOfMonthSelector
+        repeater={props.repeater}
+        setRepeater={props.setRepeater}
+      />
     </>
   );
 
@@ -55,20 +54,18 @@ export const RepeatPicker: React.FC<{
           Repeats
           <input
             type="checkbox"
-            checked={repeats}
+            checked={props.repeater ? props.repeater.repeats() : false}
             onChange={(e) => {
-              setRepeats(e.target.checked);
-              setRepeatConfig(e.target.checked ? toString(rrule) : '');
+              props.setRepeater(
+                e.target.checked ? NewDefaultRepeater() : undefined,
+              );
             }}
           />
         </label>
 
-        {repeats ? repeatSelector : null}
-        <span>{repeatConfig}</span>
+        {props.repeater && props.repeater.repeats() ? repeatSelector : null}
+        <span>{props.repeater ? props.repeater.toText() : ''}</span>
       </div>
     </div>
   );
 };
-
-const toString = (rrule: RRule): string =>
-  rrule.isFullyConvertibleToText() ? rrule.toText() : rrule.toString();

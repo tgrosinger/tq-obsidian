@@ -1,5 +1,6 @@
 import React from 'react';
 import RRule, { ByWeekday, Frequency, Weekday } from 'rrule';
+import { Repeater } from '../../rrule-adapter';
 
 const weekdays = [
   { id: 6, text: 'S' },
@@ -12,25 +13,29 @@ const weekdays = [
 ];
 
 export const DaysOfWeekSelector: React.FC<{
-  rrule: RRule;
-  setRepeatConfig: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ rrule, setRepeatConfig }): JSX.Element => {
-  if (!rrule || rrule.origOptions.freq !== Frequency.WEEKLY) {
+  repeater: Repeater;
+  setRepeater: React.Dispatch<React.SetStateAction<Repeater>>;
+}> = (props): JSX.Element => {
+  if (
+    !props.repeater ||
+    !props.repeater.rrule ||
+    props.repeater.rrule.origOptions.freq !== Frequency.WEEKLY
+  ) {
     return null;
   }
 
   const toggleSelected = (id: number) => {
-    const dow = getDaysOfWeek(rrule);
+    const dow = getDaysOfWeek(props.repeater.rrule);
     if (dow.includes(id)) {
-      setRepeatConfig(
+      props.setRepeater(
         withDaysOfWeek(
           dow.filter((n) => n !== id),
-          rrule,
+          props.repeater,
         ),
       );
     } else {
       dow.push(id);
-      setRepeatConfig(withDaysOfWeek(dow, rrule));
+      props.setRepeater(withDaysOfWeek(dow, props.repeater));
     }
   };
 
@@ -40,7 +45,7 @@ export const DaysOfWeekSelector: React.FC<{
         return (
           <button
             key={id}
-            className={isDaySelected(id, rrule) ? 'mod-cta' : ''}
+            className={isDaySelected(id, props.repeater.rrule) ? 'mod-cta' : ''}
             onClick={() => {
               toggleSelected(id);
             }}
@@ -53,7 +58,7 @@ export const DaysOfWeekSelector: React.FC<{
   );
 };
 
-const withDaysOfWeek = (ids: number[], rrule: RRule): string => {
+const withDaysOfWeek = (ids: number[], repeater: Repeater): Repeater => {
   const weekdayList: Weekday[] = new Array(ids.length);
   const numberList: number[] = new Array(ids.length);
 
@@ -62,10 +67,10 @@ const withDaysOfWeek = (ids: number[], rrule: RRule): string => {
     numberList[i] = ids[i];
   }
 
-  rrule.origOptions.byweekday = weekdayList;
-  rrule.options.byweekday = numberList;
-
-  return toString(rrule);
+  return repeater.modify((rrule: RRule) => {
+    rrule.origOptions.byweekday = weekdayList;
+    rrule.options.byweekday = numberList;
+  });
 };
 
 const getDaysOfWeek = (rrule: RRule): number[] => {
@@ -89,6 +94,3 @@ const byWeekdayToNumber = (wd: ByWeekday): number => {
   }
   return wd.weekday;
 };
-
-const toString = (rrule: RRule): string =>
-  rrule.isFullyConvertibleToText() ? rrule.toText() : rrule.toString();
