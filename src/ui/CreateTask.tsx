@@ -57,7 +57,7 @@ export const CreateTask: React.FC<{
       description,
       due,
       hideUntil,
-      repeater.toString(),
+      repeater.toText(),
       cleanedTags,
       urgent,
       important,

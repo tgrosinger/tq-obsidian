@@ -1,5 +1,6 @@
 import React from 'react';
 import RRule, { Frequency } from 'rrule';
+import { __spreadArrays } from 'tslib';
 import { Repeater } from '../../rrule-adapter';
 
 export const DaysOfMonthSelector: React.FC<{
@@ -88,16 +89,20 @@ const OnTheSelector: React.FC<{
 const EverySelector: React.FC<{
   repeater: Repeater;
   setRepeater: React.Dispatch<React.SetStateAction<Repeater>>;
-}> = (props): JSX.Element => (
-  <button
-    onClick={() => {
-      // Default value of every Monday
-      props.setRepeater(withEvery(0, props.repeater));
-    }}
-  >
-    Set Every
-  </button>
-);
+}> = (props): JSX.Element => {
+  let weekdays = props.repeater.rrule.origOptions.byweekday;
+  if (!Array.isArray(weekdays)) {
+    weekdays = [];
+  }
+
+  return (
+    <>
+      {weekdays.map((weekday) => {
+        return <span>{weekday.toString()}</span>;
+      })}
+    </>
+  );
+};
 
 const withOnTheLast = (lastDay: boolean, repeater: Repeater): Repeater =>
   repeater.modify((rrule: RRule) => {
